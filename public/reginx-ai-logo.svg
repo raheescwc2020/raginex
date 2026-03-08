@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" width="520" height="200">
+  <defs>
+    <!-- Deep navy to electric blue gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#05080F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0B1628;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Icon hex gradient -->
+    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A6EFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00D4FF;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Text gradient -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#E8F4FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7ECFFF;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Strong glow for icon -->
+    <filter id="strongGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur1"/>
+      <feGaussianBlur stdDeviation="10" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip path for hexagon -->
+    <clipPath id="hexClip">
+      <polygon points="55,10 95,32 95,78 55,100 15,78 15,32"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="520" height="200" fill="url(#bgGrad)" rx="12"/>
+
+  <!-- Subtle grid lines -->
+  <g opacity="0.06" stroke="#4A90E2" stroke-width="0.5">
+    <line x1="0" y1="50" x2="520" y2="50"/>
+    <line x1="0" y1="100" x2="520" y2="100"/>
+    <line x1="0" y1="150" x2="520" y2="150"/>
+    <line x1="130" y1="0" x2="130" y2="200"/>
+    <line x1="260" y1="0" x2="260" y2="200"/>
+    <line x1="390" y1="0" x2="390" y2="200"/>
+  </g>
+
+  <!-- ===== ICON: Hexagonal Shield with Neural Node ===== -->
+  <g transform="translate(18, 50)">
+
+    <!-- Outer glow ring -->
+    <polygon points="55,4 99,28 99,82 55,106 11,82 11,28"
+             fill="none" stroke="#1A6EFF" stroke-width="1" opacity="0.3" filter="url(#glow)"/>
+
+    <!-- Hexagon body -->
+    <polygon points="55,10 95,32 95,78 55,100 15,78 15,32"
+             fill="url(#hexGrad)" opacity="0.15"/>
+
+    <!-- Hexagon border -->
+    <polygon points="55,10 95,32 95,78 55,100 15,78 15,32"
+             fill="none" stroke="url(#hexGrad)" stroke-width="2" filter="url(#strongGlow)"/>
+
+    <!-- Inner hexagon -->
+    <polygon points="55,24 82,39 82,71 55,86 28,71 28,39"
+             fill="none" stroke="#1A6EFF" stroke-width="0.8" opacity="0.4"/>
+
+    <!-- Neural nodes -->
+    <circle cx="55" cy="55" r="6" fill="#00D4FF" filter="url(#strongGlow)"/>
+    <circle cx="55" cy="34" r="3" fill="#1A6EFF" opacity="0.9"/>
+    <circle cx="55" cy="76" r="3" fill="#1A6EFF" opacity="0.9"/>
+    <circle cx="37" cy="44" r="3" fill="#1A6EFF" opacity="0.9"/>
+    <circle cx="73" cy="44" r="3" fill="#1A6EFF" opacity="0.9"/>
+    <circle cx="37" cy="66" r="3" fill="#1A6EFF" opacity="0.9"/>
+    <circle cx="73" cy="66" r="3" fill="#1A6EFF" opacity="0.9"/>
+
+    <!-- Neural connections -->
+    <g stroke="#00D4FF" stroke-width="1" opacity="0.5">
+      <line x1="55" y1="55" x2="55" y2="34"/>
+      <line x1="55" y1="55" x2="55" y2="76"/>
+      <line x1="55" y1="55" x2="37" y2="44"/>
+      <line x1="55" y1="55" x2="73" y2="44"/>
+      <line x1="55" y1="55" x2="37" y2="66"/>
+      <line x1="55" y1="55" x2="73" y2="66"/>
+    </g>
+
+    <!-- Outer node connections -->
+    <g stroke="#1A6EFF" stroke-width="0.6" opacity="0.3">
+      <line x1="55" y1="34" x2="37" y2="44"/>
+      <line x1="55" y1="34" x2="73" y2="44"/>
+      <line x1="37" y1="44" x2="37" y2="66"/>
+      <line x1="73" y1="44" x2="73" y2="66"/>
+      <line x1="37" y1="66" x2="55" y2="76"/>
+      <line x1="73" y1="66" x2="55" y2="76"/>
+    </g>
+
+    <!-- Center pulse ring -->
+    <circle cx="55" cy="55" r="10" fill="none" stroke="#00D4FF" stroke-width="1" opacity="0.4"/>
+    <circle cx="55" cy="55" r="14" fill="none" stroke="#1A6EFF" stroke-width="0.5" opacity="0.25"/>
+  </g>
+
+  <!-- ===== WORDMARK ===== -->
+  <!-- REGINX -->
+  <text x="130" y="115"
+        font-family="'Trebuchet MS', 'Gill Sans', sans-serif"
+        font-size="58"
+        font-weight="700"
+        letter-spacing="4"
+        fill="url(#textGrad)"
+        filter="url(#glow)">REGINX</text>
+
+  <!-- AI badge -->
+  <rect x="131" y="122" width="34" height="18" rx="3"
+        fill="#1A6EFF" opacity="0.85"/>
+  <text x="148" y="135"
+        font-family="'Courier New', monospace"
+        font-size="11"
+        font-weight="700"
+        letter-spacing="2"
+        text-anchor="middle"
+        fill="#FFFFFF">AI</text>
+
+  <!-- Tagline -->
+  <text x="172" y="135"
+        font-family="'Trebuchet MS', Georgia, sans-serif"
+        font-size="10.5"
+        font-weight="400"
+        letter-spacing="2.5"
+        fill="#7ECFFF"
+        opacity="0.75">POWERING GOVERNANCE WITH INTELLIGENT AI</text>
+
+  <!-- Accent line under REGINX -->
+  <line x1="130" y1="120" x2="460" y2="120" stroke="url(#hexGrad)" stroke-width="1" opacity="0.3"/>
+
+  <!-- Corner accents -->
+  <polyline points="4,20 4,4 20,4" fill="none" stroke="#1A6EFF" stroke-width="1.5" opacity="0.5"/>
+  <polyline points="500,4 516,4 516,20" fill="none" stroke="#1A6EFF" stroke-width="1.5" opacity="0.5"/>
+  <polyline points="4,180 4,196 20,196" fill="none" stroke="#1A6EFF" stroke-width="1.5" opacity="0.5"/>
+  <polyline points="500,196 516,196 516,180" fill="none" stroke="#1A6EFF" stroke-width="1.5" opacity="0.5"/>
+</svg>
