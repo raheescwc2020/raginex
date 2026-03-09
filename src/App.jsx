@@ -12,10 +12,9 @@ const SERVICES = [
 ];
 
 const SOLUTIONS = [
-  { dept: "Healthcare", icon: "🏥", items: ["Disease outbreak prediction", "Hospital resource optimization", "Medical records digitization"] },
-  { dept: "Public Safety", icon: "🚔", items: ["Crime pattern analysis", "Emergency response routing", "CCTV intelligence"] },
-  { dept: "Revenue & Tax", icon: "💰", items: ["Tax evasion detection", "Automated assessments", "Grievance AI"] },
-  { dept: "Agriculture", icon: "🌾", items: ["Crop yield forecasting", "Drought risk mapping", "Subsidy disbursal AI"] },
+  { dept: "Warehouse & Logistics", icon: "🏭", items: ["Real-time inventory tracking & replenishment", "AI-driven slotting & space optimization", "Predictive demand forecasting", "Smart pick-pack-ship automation"] },
+  { dept: "Litigation Management", icon: "⚖️", items: ["End-to-end case lifecycle tracking", "AI-powered legal research & precedent search", "Court date scheduling & deadline alerts", "Inter-department legal coordination portal"] },
+  { dept: "Agriculture", icon: "🌾", items: ["Crop yield forecasting", "Drought risk mapping", "Subsidy disbursal AI"] }
 ];
 
 const STATS = [
@@ -26,9 +25,9 @@ const STATS = [
 ];
 
 const TEAM = [
-  { name: "Gireesh Menon", role: "", initials: "GM" },
-  { name: "Rahees Mohammed R", role: "", initials: "RM" },
-  { name: "Nandu Krishnan", role: "", initials: "NK" },
+  { name: "XYZ", role: "", initials: "GM" },
+  { name: "ABC", role: "", initials: "RM" },
+  { name: "QRS", role: "", initials: "NK" },
 ];
 
 function useCountUp(target, duration = 2000, start = false) {
@@ -443,10 +442,10 @@ export default function ReginxPortfolio() {
               Founded by a team of AI researchers, policy experts and technology veterans, REGINX AI Technologies LLP was built with a single mission — to transform how governments operate through the responsible deployment of Artificial Intelligence.
             </p>
             <p style={{ color: "#4a6b57", lineHeight: 1.85, marginBottom: "2rem", fontSize: "1rem" }}>
-              We specialize in designing AI systems that respect data sovereignty, comply with Indian government standards, and integrate seamlessly with existing e-governance frameworks like NIC, DigiLocker and UMANG.
+              We specialize in designing AI systems that respect data sovereignty, comply with Indian government standards, and integrate seamlessly with existing e-governance frameworks like NIC , Gathi Shakti.
             </p>
             <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
-              {[["2022", "Founded"], ["Kerala", "Headquarters"], ["Pan-India", "Operations"]].map(([v, l]) => (
+              {[["xxxx", "Founded"], ["Kerala", "Headquarters"], ["Pan-India", "Operations"]].map(([v, l]) => (
                 <div key={l}>
                   <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 700, color: "#1e7d50" }}>{v}</div>
                   <div style={{ fontSize: "0.8rem", color: "#7aab92", letterSpacing: "0.08em", marginTop: 2 }}>{l}</div>
@@ -547,7 +546,7 @@ export default function ReginxPortfolio() {
               REGINX AI transformed our district-level grievance resolution process. Response times dropped by 60% and citizen satisfaction scores reached an all-time high.
             </p>
             <div style={{ fontSize: "0.85rem", color: "#7aab92" }}>
-              <strong style={{ color: "#1e7d50" }}>District Collector</strong> — Kerala Administrative Services
+              <strong style={{ color: "#1e7d50" }}>CLIENT XYZ</strong> — XYZ TECHNOLOGIES
             </div>
           </div>
         </div>
@@ -598,9 +597,9 @@ export default function ReginxPortfolio() {
               Whether you're looking for a proof-of-concept, a full-scale deployment or a consultation, our team is ready to craft the right AI solution for your organization.
             </p>
             {[
-              ["📍", "Address", "REGINX AI Technologies LLP\nKochi, Kerala — 682001"],
+              ["📍", "Address", "REGINX AI Technologies LLP"],
               ["📧", "Email", "info@reginxai.com"],
-              ["📞", "Phone", "+91 98765 43210"],
+              ["📞", "Phone", "+91 xxxxxxxxx"],
               ["🕐", "Business Hours", "Mon – Sat: 9:00 AM – 6:00 PM IST"],
             ].map(([icon, label, value]) => (
               <div key={label} style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", alignItems: "flex-start" }}>
@@ -712,7 +711,7 @@ export default function ReginxPortfolio() {
             </div>
             {[
               ["Services", ["AI Consulting", "Document AI", "Predictive Analytics", "Smart Chatbots", "Audit AI"]],
-              ["Solutions", ["Healthcare", "Public Safety", "Revenue & Tax", "Agriculture", "Education"]],
+              ["Solutions", ["Warehouse Management Solutions", "Litigation System", "Agriculture"]],
               ["Company", ["About Us", "Our Team", "Careers", "Press", "Privacy Policy"]],
             ].map(([title, items]) => (
               <div key={title}>
