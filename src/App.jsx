@@ -55,7 +55,7 @@ function StatCard({ value, suffix, label, animate }) {
         background: "#fff",
         border: "1px solid #e2ede8",
         borderRadius: 16,
-        padding: "2.5rem 2rem",
+        padding: "2rem 1.5rem",
         textAlign: "center",
         boxShadow: "0 2px 20px rgba(34,110,72,0.07)",
         transition: "transform 0.3s, box-shadow 0.3s",
@@ -63,10 +63,10 @@ function StatCard({ value, suffix, label, animate }) {
       onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 20px 50px rgba(34,110,72,0.14)"; }}
       onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 20px rgba(34,110,72,0.07)"; }}
     >
-      <div style={{ fontSize: "3.2rem", fontWeight: 800, color: "#1e7d50", fontFamily: "'Playfair Display', serif", lineHeight: 1 }}>
+      <div style={{ fontSize: "2.8rem", fontWeight: 800, color: "#1e7d50", fontFamily: "'Playfair Display', serif", lineHeight: 1 }}>
         {count}{suffix}
       </div>
-      <div style={{ marginTop: "0.75rem", fontSize: "0.92rem", color: "#6b9e84", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>
+      <div style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b9e84", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>
         {label}
       </div>
     </div>
@@ -91,10 +91,18 @@ export default function ReginxPortfolio() {
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) setStatsVisible(true);
-    }, { threshold: 0.3 });
+    }, { threshold: 0.2 });
     if (statsRef.current) observer.observe(statsRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = () => setMenuOpen(false);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [menuOpen]);
 
   const scrollTo = (id) => {
     const el = document.getElementById(id.toLowerCase());
@@ -124,6 +132,7 @@ export default function ReginxPortfolio() {
         @keyframes pulseRing { 0%{transform:scale(0.8);opacity:0.6} 100%{transform:scale(2.2);opacity:0} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
         @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
 
         .hero-title { animation: fadeUp 1s ease 0.2s both; }
         .hero-sub { animation: fadeUp 1s ease 0.5s both; }
@@ -184,12 +193,44 @@ export default function ReginxPortfolio() {
           animation: shimmer 4s linear infinite;
         }
 
-        section { scroll-margin-top: 80px; }
+        section { scroll-margin-top: 70px; }
+
+        /* Mobile menu */
+        .mobile-menu {
+          animation: slideDown 0.25s ease both;
+        }
+
+        /* Hamburger */
+        .hamburger-line {
+          display: block;
+          width: 22px;
+          height: 2px;
+          background: #1a2e24;
+          border-radius: 2px;
+          transition: all 0.3s;
+          transform-origin: center;
+        }
+
+        /* Responsive grid overrides */
+        @media (max-width: 768px) {
+          .about-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
+          .contact-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
+          .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
+          .hero-btns-inner { flex-direction: column !important; align-items: stretch !important; }
+          .hero-btns-inner button { width: 100% !important; }
+          .form-row { grid-template-columns: 1fr !important; }
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+
+        @media (max-width: 480px) {
+          .footer-grid { grid-template-columns: 1fr !important; }
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
+        }
       `}</style>
 
       {/* Subtle floating particles */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        {Array.from({ length: 18 }).map((_, i) => (
+        {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} style={{
             position: "absolute",
             width: Math.random() * 5 + 2 + "px",
@@ -210,146 +251,180 @@ export default function ReginxPortfolio() {
         borderBottom: "1px solid #e8f0ec",
         boxShadow: scrolled ? "0 2px 24px rgba(30,125,80,0.08)" : "0 1px 0 #e8f0ec",
         transition: "box-shadow 0.4s ease",
-        padding: "0 3rem",
-        height: 70,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-        {/* Logo */}
-        <div style={{ cursor: "pointer", display: "flex", alignItems: "center" }} onClick={() => scrollTo("home")}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 64" width="260" height="64" aria-label="REGINX AI">
-            <defs>
-              <linearGradient id="navHexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1e7d50"/>
-                <stop offset="100%" stopColor="#2da06a"/>
-              </linearGradient>
-              <linearGradient id="navTextGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#0f1f17"/>
-                <stop offset="100%" stopColor="#1a3d28"/>
-              </linearGradient>
-              <filter id="navGlow" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
-
-            {/* Hexagon icon */}
-            <g transform="translate(4, 4)">
-              {/* Outer hex border */}
-              <polygon points="28,2 50,14 50,42 28,54 6,42 6,14"
-                fill="url(#navHexGrad)" opacity="0.12"/>
-              <polygon points="28,2 50,14 50,42 28,54 6,42 6,14"
-                fill="none" stroke="url(#navHexGrad)" strokeWidth="1.5" filter="url(#navGlow)"/>
-              {/* Inner hex */}
-              <polygon points="28,10 44,19 44,37 28,46 12,37 12,19"
-                fill="none" stroke="#1e7d50" strokeWidth="0.8" opacity="0.35"/>
-              {/* Neural connections */}
-              <g stroke="#1e7d50" strokeWidth="0.9" opacity="0.5">
-                <line x1="28" y1="28" x2="28" y2="14"/>
-                <line x1="28" y1="28" x2="28" y2="42"/>
-                <line x1="28" y1="28" x2="17" y2="21"/>
-                <line x1="28" y1="28" x2="39" y2="21"/>
-                <line x1="28" y1="28" x2="17" y2="35"/>
-                <line x1="28" y1="28" x2="39" y2="35"/>
+        <div style={{
+          padding: "0 1.25rem",
+          height: 64,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          maxWidth: 1300,
+          margin: "0 auto",
+        }}>
+          {/* Logo */}
+          <div style={{ cursor: "pointer", display: "flex", alignItems: "center", flexShrink: 0 }} onClick={() => scrollTo("home")}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 64" width="200" height="52" aria-label="REGINX AI">
+              <defs>
+                <linearGradient id="navHexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1e7d50"/>
+                  <stop offset="100%" stopColor="#2da06a"/>
+                </linearGradient>
+                <linearGradient id="navTextGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#0f1f17"/>
+                  <stop offset="100%" stopColor="#1a3d28"/>
+                </linearGradient>
+                <filter id="navGlow" x="-40%" y="-40%" width="180%" height="180%">
+                  <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <g transform="translate(4, 4)">
+                <polygon points="28,2 50,14 50,42 28,54 6,42 6,14" fill="url(#navHexGrad)" opacity="0.12"/>
+                <polygon points="28,2 50,14 50,42 28,54 6,42 6,14" fill="none" stroke="url(#navHexGrad)" strokeWidth="1.5" filter="url(#navGlow)"/>
+                <polygon points="28,10 44,19 44,37 28,46 12,37 12,19" fill="none" stroke="#1e7d50" strokeWidth="0.8" opacity="0.35"/>
+                <g stroke="#1e7d50" strokeWidth="0.9" opacity="0.5">
+                  <line x1="28" y1="28" x2="28" y2="14"/>
+                  <line x1="28" y1="28" x2="28" y2="42"/>
+                  <line x1="28" y1="28" x2="17" y2="21"/>
+                  <line x1="28" y1="28" x2="39" y2="21"/>
+                  <line x1="28" y1="28" x2="17" y2="35"/>
+                  <line x1="28" y1="28" x2="39" y2="35"/>
+                </g>
+                <g fill="#1e7d50" opacity="0.7">
+                  <circle cx="28" cy="14" r="2"/>
+                  <circle cx="28" cy="42" r="2"/>
+                  <circle cx="17" cy="21" r="2"/>
+                  <circle cx="39" cy="21" r="2"/>
+                  <circle cx="17" cy="35" r="2"/>
+                  <circle cx="39" cy="35" r="2"/>
+                </g>
+                <circle cx="28" cy="28" r="4.5" fill="#1e7d50" filter="url(#navGlow)"/>
+                <circle cx="28" cy="28" r="7" fill="none" stroke="#2da06a" strokeWidth="0.8" opacity="0.4"/>
               </g>
-              {/* Outer nodes */}
-              <g fill="#1e7d50" opacity="0.7">
-                <circle cx="28" cy="14" r="2"/>
-                <circle cx="28" cy="42" r="2"/>
-                <circle cx="17" cy="21" r="2"/>
-                <circle cx="39" cy="21" r="2"/>
-                <circle cx="17" cy="35" r="2"/>
-                <circle cx="39" cy="35" r="2"/>
-              </g>
-              {/* Center node */}
-              <circle cx="28" cy="28" r="4.5" fill="#1e7d50" filter="url(#navGlow)"/>
-              <circle cx="28" cy="28" r="7" fill="none" stroke="#2da06a" strokeWidth="0.8" opacity="0.4"/>
-            </g>
+              <line x1="66" y1="12" x2="66" y2="52" stroke="#dceee4" strokeWidth="1.2"/>
+              <text x="78" y="38" fontFamily="'Playfair Display', Georgia, serif" fontSize="26" fontWeight="800" letterSpacing="3" fill="url(#navTextGrad)">REGINX</text>
+              <rect x="80" y="43" width="28" height="13" rx="3" fill="#1e7d50"/>
+              <text x="94" y="53" fontFamily="'DM Sans', sans-serif" fontSize="8" fontWeight="700" letterSpacing="1.5" textAnchor="middle" fill="#ffffff">AI</text>
+              <text x="114" y="53" fontFamily="'DM Sans', sans-serif" fontSize="7.5" fontWeight="400" letterSpacing="1.8" fill="#7aab92">TECHNOLOGIES LLP</text>
+            </svg>
+          </div>
 
-            {/* Divider */}
-            <line x1="66" y1="12" x2="66" y2="52" stroke="#dceee4" strokeWidth="1.2"/>
+          {/* Desktop Nav */}
+          <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}
+            className="desktop-nav"
+          >
+            <style>{`
+              @media (max-width: 900px) { .desktop-nav { display: none !important; } .hamburger-btn { display: flex !important; } }
+              @media (min-width: 901px) { .hamburger-btn { display: none !important; } }
+            `}</style>
+            {NAV_LINKS.map(link => (
+              <span key={link}
+                className={`nav-link${activeNav === link ? " active" : ""}`}
+                style={{ fontSize: "0.88rem", color: activeNav === link ? "#1e7d50" : "#4a6b57", fontWeight: 500, letterSpacing: "0.03em", whiteSpace: "nowrap" }}
+                onClick={() => scrollTo(link)}>
+                {link}
+              </span>
+            ))}
+            <button className="btn-primary" style={{ padding: "0.6rem 1.4rem", fontSize: "0.88rem", whiteSpace: "nowrap" }} onClick={() => scrollTo("Contact")}>
+              Get a Demo
+            </button>
+          </div>
 
-            {/* REGINX wordmark */}
-            <text x="78" y="38"
-              fontFamily="'Playfair Display', Georgia, serif"
-              fontSize="26" fontWeight="800"
-              letterSpacing="3"
-              fill="url(#navTextGrad)">REGINX</text>
-
-            {/* AI badge */}
-            <rect x="80" y="43" width="28" height="13" rx="3" fill="#1e7d50"/>
-            <text x="94" y="53"
-              fontFamily="'DM Sans', sans-serif"
-              fontSize="8" fontWeight="700"
-              letterSpacing="1.5"
-              textAnchor="middle"
-              fill="#ffffff">AI</text>
-
-            {/* Tagline */}
-            <text x="114" y="53"
-              fontFamily="'DM Sans', sans-serif"
-              fontSize="7.5" fontWeight="400"
-              letterSpacing="1.8"
-              fill="#7aab92">TECHNOLOGIES LLP</text>
-          </svg>
-        </div>
-
-        {/* Desktop Nav */}
-        <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
-          {NAV_LINKS.map(link => (
-            <span key={link}
-              className={`nav-link${activeNav === link ? " active" : ""}`}
-              style={{ fontSize: "0.88rem", color: activeNav === link ? "#1e7d50" : "#4a6b57", fontWeight: 500, letterSpacing: "0.03em" }}
-              onClick={() => scrollTo(link)}>
-              {link}
-            </span>
-          ))}
-          <button className="btn-primary" style={{ padding: "0.6rem 1.4rem", fontSize: "0.88rem" }} onClick={() => scrollTo("Contact")}>
-            Get a Demo
+          {/* Hamburger button */}
+          <button
+            className="hamburger-btn"
+            onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              display: "none", flexDirection: "column", gap: "5px",
+              padding: "8px", borderRadius: 8,
+              alignItems: "center", justifyContent: "center",
+            }}
+            aria-label="Toggle menu"
+          >
+            <span className="hamburger-line" style={{ transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none" }} />
+            <span className="hamburger-line" style={{ opacity: menuOpen ? 0 : 1, transform: menuOpen ? "scaleX(0)" : "none" }} />
+            <span className="hamburger-line" style={{ transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none" }} />
           </button>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {menuOpen && (
+          <div
+            className="mobile-menu"
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "#ffffff",
+              borderTop: "1px solid #e8f0ec",
+              padding: "1rem 1.25rem 1.5rem",
+              boxShadow: "0 12px 40px rgba(30,125,80,0.12)",
+            }}
+          >
+            {NAV_LINKS.map(link => (
+              <div key={link}
+                onClick={() => scrollTo(link)}
+                style={{
+                  padding: "0.85rem 0.5rem",
+                  borderBottom: "1px solid #f0f7f3",
+                  fontSize: "0.95rem",
+                  color: activeNav === link ? "#1e7d50" : "#1a2e24",
+                  fontWeight: activeNav === link ? 600 : 400,
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                }}
+              >
+                {link}
+                {activeNav === link && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#1e7d50" }} />}
+              </div>
+            ))}
+            <button className="btn-primary" style={{ width: "100%", marginTop: "1rem", padding: "0.9rem" }} onClick={() => scrollTo("Contact")}>
+              Get a Demo
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* ── HERO ── */}
-      <section id="home" style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden", paddingTop: "70px", background: "#ffffff" }}>
-        {/* Subtle background mesh */}
+      <section id="home" style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden", paddingTop: "64px", background: "#ffffff" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 55% at 65% 45%, rgba(30,125,80,0.07) 0%, transparent 65%), radial-gradient(ellipse 45% 45% at 15% 75%, rgba(45,160,106,0.05) 0%, transparent 60%)" }} />
-        {/* Grid */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(30,125,80,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,125,80,0.04) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
 
-        {/* Pulse rings */}
-        <div style={{ position: "absolute", right: "7%", top: "28%", width: 320, height: 320 }}>
-          {[0, 0.6, 1.2].map(d => (
-            <div key={d} style={{ position: "absolute", inset: 0, border: "1px solid rgba(30,125,80,0.18)", borderRadius: "50%", animation: `pulseRing 3s ease-out ${d}s infinite` }} />
-          ))}
-          <div style={{ position: "absolute", inset: "35%", background: "radial-gradient(circle, rgba(30,125,80,0.12), transparent)", borderRadius: "50%" }} />
+        {/* Pulse rings — hidden on small screens */}
+        <div style={{ position: "absolute", right: "7%", top: "28%", width: 280, height: 280, display: "block" }}>
+          <style>{`@media(max-width:600px){.pulse-rings{display:none!important}}`}</style>
+          <div className="pulse-rings" style={{ position: "absolute", inset: 0 }}>
+            {[0, 0.6, 1.2].map(d => (
+              <div key={d} style={{ position: "absolute", inset: 0, border: "1px solid rgba(30,125,80,0.18)", borderRadius: "50%", animation: `pulseRing 3s ease-out ${d}s infinite` }} />
+            ))}
+            <div style={{ position: "absolute", inset: "35%", background: "radial-gradient(circle, rgba(30,125,80,0.12), transparent)", borderRadius: "50%" }} />
+          </div>
         </div>
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 780, margin: "0 auto", padding: "0 3rem", textAlign: "center" }}>
-          <div className="hero-badge" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(30,125,80,0.08)", border: "1px solid rgba(30,125,80,0.2)", borderRadius: 50, padding: "0.45rem 1.3rem", marginBottom: "2rem", fontSize: "0.8rem", color: "#1e7d50", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>
+        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 780, margin: "0 auto", padding: "2rem 1.5rem", textAlign: "center" }}>
+          <div className="hero-badge" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(30,125,80,0.08)", border: "1px solid rgba(30,125,80,0.2)", borderRadius: 50, padding: "0.45rem 1.2rem", marginBottom: "1.75rem", fontSize: "0.75rem", color: "#1e7d50", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#1e7d50", display: "inline-block", boxShadow: "0 0 8px rgba(30,125,80,0.6)" }} />
             Trusted by Government Organizations
           </div>
 
-          <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2.8rem, 5.5vw, 4.8rem)", fontWeight: 800, lineHeight: 1.12, marginBottom: "1.5rem", color: "#0f1f17" }}>
+          <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2.2rem, 6vw, 4.8rem)", fontWeight: 800, lineHeight: 1.12, marginBottom: "1.25rem", color: "#0f1f17" }}>
             Powering Governance with{" "}
             <span className="shimmer-text">Intelligent AI</span>
           </h1>
 
-          <p className="hero-sub" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.1rem, 2vw, 1.4rem)", color: "#5a8a6e", lineHeight: 1.75, marginBottom: "2.5rem", fontWeight: 300, fontStyle: "italic", maxWidth: 620, margin: "0 auto 2.5rem" }}>
+          <p className="hero-sub" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 2.5vw, 1.4rem)", color: "#5a8a6e", lineHeight: 1.75, marginBottom: "2rem", fontWeight: 300, fontStyle: "italic", maxWidth: 620, margin: "0 auto 2rem" }}>
             REGINX AI Technologies LLP delivers cutting-edge Artificial Intelligence solutions tailored exclusively for Government Organizations — enabling smarter decisions, transparent governance and efficient citizen services.
           </p>
 
           <div className="hero-btns" style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn-primary" style={{ fontSize: "1.05rem", padding: "1.1rem 2.5rem" }} onClick={() => scrollTo("Contact")}>
-              Request an Enquiry →
-            </button>
-            <button className="btn-outline" style={{ fontSize: "1.05rem", padding: "1.1rem 2.5rem" }} onClick={() => scrollTo("Services")}>
-              Explore Solutions
-            </button>
+            <div className="hero-btns-inner" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
+              <button className="btn-primary" style={{ fontSize: "1rem", padding: "1rem 2.2rem" }} onClick={() => scrollTo("Contact")}>
+                Request an Enquiry →
+              </button>
+              <button className="btn-outline" style={{ fontSize: "1rem", padding: "1rem 2.2rem" }} onClick={() => scrollTo("Services")}>
+                Explore Solutions
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div style={{ position: "absolute", bottom: "2rem", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem", opacity: 0.4 }}>
           <div style={{ fontSize: "0.7rem", letterSpacing: "0.15em", color: "#1e7d50", textTransform: "uppercase" }}>Scroll</div>
           <div style={{ width: 1, height: 40, background: "linear-gradient(#1e7d50, transparent)" }} />
@@ -357,11 +432,11 @@ export default function ReginxPortfolio() {
       </section>
 
       {/* ── ABOUT ── */}
-      <section id="about" style={{ padding: "6rem 3rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "center" }}>
+      <section id="about" style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
           <div>
             <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "1rem", fontWeight: 700 }}>About Us</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, lineHeight: 1.2, marginBottom: "1.5rem", color: "#0f1f17" }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, lineHeight: 1.2, marginBottom: "1.5rem", color: "#0f1f17" }}>
               Bridging Governance<br /><em style={{ color: "#1e7d50", fontStyle: "italic" }}>& Artificial Intelligence</em>
             </h2>
             <p style={{ color: "#4a6b57", lineHeight: 1.85, marginBottom: "1.5rem", fontSize: "1rem" }}>
@@ -370,18 +445,17 @@ export default function ReginxPortfolio() {
             <p style={{ color: "#4a6b57", lineHeight: 1.85, marginBottom: "2rem", fontSize: "1rem" }}>
               We specialize in designing AI systems that respect data sovereignty, comply with Indian government standards, and integrate seamlessly with existing e-governance frameworks like NIC, DigiLocker and UMANG.
             </p>
-            <div style={{ display: "flex", gap: "2.5rem" }}>
+            <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
               {[["2022", "Founded"], ["Kerala", "Headquarters"], ["Pan-India", "Operations"]].map(([v, l]) => (
                 <div key={l}>
-                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 700, color: "#1e7d50" }}>{v}</div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 700, color: "#1e7d50" }}>{v}</div>
                   <div style={{ fontSize: "0.8rem", color: "#7aab92", letterSpacing: "0.08em", marginTop: 2 }}>{l}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Values panel */}
-          <div style={{ background: "linear-gradient(135deg,rgba(30,125,80,0.05),rgba(30,125,80,0.02))", border: "1px solid rgba(30,125,80,0.12)", borderRadius: 22, padding: "2.5rem", boxShadow: "0 4px 40px rgba(30,125,80,0.07)" }}>
+          <div style={{ background: "linear-gradient(135deg,rgba(30,125,80,0.05),rgba(30,125,80,0.02))", border: "1px solid rgba(30,125,80,0.12)", borderRadius: 22, padding: "2rem", boxShadow: "0 4px 40px rgba(30,125,80,0.07)" }}>
             <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.18em", marginBottom: "1.5rem", textTransform: "uppercase", fontWeight: 700 }}>Our Core Values</div>
             {[
               ["🔒", "Security First", "All AI systems built with data privacy and national security at the forefront."],
@@ -389,8 +463,8 @@ export default function ReginxPortfolio() {
               ["🌱", "Inclusive Growth", "AI solutions accessible across linguistic and geographic barriers."],
               ["🔧", "Reliable Infrastructure", "99.8% uptime with disaster recovery and sovereign cloud hosting."],
             ].map(([icon, title, desc]) => (
-              <div key={title} style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", alignItems: "flex-start" }}>
-                <div style={{ fontSize: "1.4rem", marginTop: 2, flexShrink: 0 }}>{icon}</div>
+              <div key={title} style={{ display: "flex", gap: "1rem", marginBottom: "1.4rem", alignItems: "flex-start" }}>
+                <div style={{ fontSize: "1.3rem", marginTop: 2, flexShrink: 0 }}>{icon}</div>
                 <div>
                   <div style={{ fontWeight: 600, color: "#1a2e24", marginBottom: "0.25rem", fontSize: "0.95rem" }}>{title}</div>
                   <div style={{ fontSize: "0.85rem", color: "#5a8a6e", lineHeight: 1.65 }}>{desc}</div>
@@ -402,21 +476,21 @@ export default function ReginxPortfolio() {
       </section>
 
       {/* ── SERVICES ── */}
-      <section id="services" style={{ padding: "6rem 3rem", background: "#f0f7f3" }}>
+      <section id="services" style={{ padding: "5rem 1.5rem", background: "#f0f7f3" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>What We Do</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1rem" }}>Our AI Services</h2>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1rem" }}>Our AI Services</h2>
             <p style={{ color: "#5a8a6e", maxWidth: 540, margin: "0 auto", lineHeight: 1.75 }}>
               End-to-end AI capabilities designed specifically for the complexities and compliance requirements of government organizations.
             </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
             {SERVICES.map((s, i) => (
-              <div key={i} className="service-card" style={{ background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18, padding: "2.2rem", boxShadow: "0 2px 16px rgba(30,125,80,0.06)" }}>
-                <div style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>{s.icon}</div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.15rem", fontWeight: 700, color: "#0f1f17", marginBottom: "0.75rem" }}>{s.title}</h3>
-                <p style={{ fontSize: "0.9rem", color: "#5a8a6e", lineHeight: 1.75 }}>{s.desc}</p>
+              <div key={i} className="service-card" style={{ background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18, padding: "2rem", boxShadow: "0 2px 16px rgba(30,125,80,0.06)" }}>
+                <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>{s.icon}</div>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", fontWeight: 700, color: "#0f1f17", marginBottom: "0.75rem" }}>{s.title}</h3>
+                <p style={{ fontSize: "0.88rem", color: "#5a8a6e", lineHeight: 1.75 }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -424,25 +498,25 @@ export default function ReginxPortfolio() {
       </section>
 
       {/* ── SOLUTIONS ── */}
-      <section id="solutions" style={{ padding: "6rem 3rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+      <section id="solutions" style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
           <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Use Cases</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1rem" }}>Department-Specific Solutions</h2>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1rem" }}>Department-Specific Solutions</h2>
           <p style={{ color: "#5a8a6e", maxWidth: 540, margin: "0 auto", lineHeight: 1.75 }}>
             Targeted AI applications built for the unique workflows of each government department.
           </p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.25rem" }}>
           {SOLUTIONS.map((s, i) => (
             <div key={i} style={{
-              background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18, padding: "2.2rem",
+              background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18, padding: "2rem",
               boxShadow: "0 2px 16px rgba(30,125,80,0.06)", transition: "transform 0.3s, box-shadow 0.3s, border-color 0.3s",
             }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = "0 16px 44px rgba(30,125,80,0.14)"; e.currentTarget.style.borderColor = "rgba(30,125,80,0.3)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(30,125,80,0.06)"; e.currentTarget.style.borderColor = "#dceee4"; }}
             >
-              <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>{s.icon}</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.15rem", fontWeight: 700, color: "#1e7d50", marginBottom: "1.25rem" }}>{s.dept}</div>
+              <div style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>{s.icon}</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", fontWeight: 700, color: "#1e7d50", marginBottom: "1rem" }}>{s.dept}</div>
               {s.items.map((item, j) => (
                 <div key={j} style={{ display: "flex", alignItems: "center", gap: "0.65rem", marginBottom: "0.65rem" }}>
                   <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#1e7d50", flexShrink: 0 }} />
@@ -455,21 +529,21 @@ export default function ReginxPortfolio() {
       </section>
 
       {/* ── STATISTICS ── */}
-      <section id="statistics" ref={statsRef} style={{ padding: "6rem 3rem", background: "#f0f7f3", position: "relative" }}>
+      <section id="statistics" ref={statsRef} style={{ padding: "5rem 1.5rem", background: "#f0f7f3", position: "relative" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(30,125,80,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,125,80,0.04) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Our Impact</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17" }}>Numbers That Matter</h2>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17" }}>Numbers That Matter</h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
+          <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.25rem" }}>
             {STATS.map((s, i) => <StatCard key={i} {...s} animate={statsVisible} />)}
           </div>
 
           {/* Testimonial */}
-          <div style={{ marginTop: "4rem", background: "#ffffff", border: "1px solid #dceee4", borderRadius: 22, padding: "2.5rem 3rem", textAlign: "center", maxWidth: 700, margin: "4rem auto 0", boxShadow: "0 4px 30px rgba(30,125,80,0.08)" }}>
+          <div style={{ marginTop: "4rem", background: "#ffffff", border: "1px solid #dceee4", borderRadius: 22, padding: "2rem", textAlign: "center", maxWidth: 700, margin: "4rem auto 0", boxShadow: "0 4px 30px rgba(30,125,80,0.08)" }}>
             <div style={{ fontSize: "3rem", color: "rgba(30,125,80,0.2)", fontFamily: "Georgia", lineHeight: 0.5, marginBottom: "1rem" }}>"</div>
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.25rem", color: "#2a4a38", lineHeight: 1.75, fontStyle: "italic", marginBottom: "1.5rem" }}>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 2vw, 1.25rem)", color: "#2a4a38", lineHeight: 1.75, fontStyle: "italic", marginBottom: "1.5rem" }}>
               REGINX AI transformed our district-level grievance resolution process. Response times dropped by 60% and citizen satisfaction scores reached an all-time high.
             </p>
             <div style={{ fontSize: "0.85rem", color: "#7aab92" }}>
@@ -480,15 +554,15 @@ export default function ReginxPortfolio() {
       </section>
 
       {/* ── TEAM ── */}
-      <section style={{ padding: "6rem 3rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+      <section style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
           <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Our Leadership</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17" }}>Meet the Team</h2>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17" }}>Meet the Team</h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
           {TEAM.map((member, i) => (
             <div key={i} style={{
-              textAlign: "center", padding: "2.5rem 1.5rem",
+              textAlign: "center", padding: "2rem 1.25rem",
               background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18,
               boxShadow: "0 2px 16px rgba(30,125,80,0.06)",
               transition: "transform 0.3s, box-shadow 0.3s, border-color 0.3s",
@@ -497,15 +571,15 @@ export default function ReginxPortfolio() {
               onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(30,125,80,0.06)"; e.currentTarget.style.borderColor = "#dceee4"; }}
             >
               <div style={{
-                width: 82, height: 82, borderRadius: "50%",
+                width: 76, height: 76, borderRadius: "50%",
                 background: "linear-gradient(135deg,#1e7d50,#2da06a)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 1.25rem",
-                fontSize: "1.4rem", fontWeight: 700, color: "#fff",
+                fontSize: "1.3rem", fontWeight: 700, color: "#fff",
                 fontFamily: "'Playfair Display', serif",
                 boxShadow: "0 8px 28px rgba(30,125,80,0.3)",
               }}>{member.initials}</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.05rem", fontWeight: 700, color: "#0f1f17", marginBottom: "0.35rem" }}>{member.name}</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 700, color: "#0f1f17", marginBottom: "0.35rem" }}>{member.name}</div>
               <div style={{ fontSize: "0.82rem", color: "#7aab92", letterSpacing: "0.04em" }}>{member.role}</div>
             </div>
           ))}
@@ -513,14 +587,14 @@ export default function ReginxPortfolio() {
       </section>
 
       {/* ── CONTACT ── */}
-      <section id="contact" style={{ padding: "6rem 3rem", background: "#f0f7f3" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: "5rem", alignItems: "start" }}>
+      <section id="contact" style={{ padding: "5rem 1.5rem", background: "#f0f7f3" }}>
+        <div className="contact-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: "4rem", alignItems: "start" }}>
           <div>
             <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Contact Us</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 3vw, 2.8rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1.5rem", lineHeight: 1.2 }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3vw, 2.8rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1.5rem", lineHeight: 1.2 }}>
               Start Your AI<br /><em style={{ color: "#1e7d50", fontStyle: "italic" }}>Transformation</em>
             </h2>
-            <p style={{ color: "#5a8a6e", lineHeight: 1.85, marginBottom: "2.5rem", fontSize: "0.95rem" }}>
+            <p style={{ color: "#5a8a6e", lineHeight: 1.85, marginBottom: "2rem", fontSize: "0.95rem" }}>
               Whether you're looking for a proof-of-concept, a full-scale deployment or a consultation, our team is ready to craft the right AI solution for your organization.
             </p>
             {[
@@ -530,17 +604,17 @@ export default function ReginxPortfolio() {
               ["🕐", "Business Hours", "Mon – Sat: 9:00 AM – 6:00 PM IST"],
             ].map(([icon, label, value]) => (
               <div key={label} style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", alignItems: "flex-start" }}>
-                <div style={{ fontSize: "1.3rem", marginTop: 2 }}>{icon}</div>
+                <div style={{ fontSize: "1.2rem", marginTop: 2 }}>{icon}</div>
                 <div>
                   <div style={{ fontSize: "0.73rem", color: "#7aab92", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.25rem", fontWeight: 600 }}>{label}</div>
-                  <div style={{ fontSize: "0.95rem", color: "#1a2e24", whiteSpace: "pre-line" }}>{value}</div>
+                  <div style={{ fontSize: "0.93rem", color: "#1a2e24", whiteSpace: "pre-line" }}>{value}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Form */}
-          <div style={{ background: "#ffffff", border: "1px solid #dceee4", borderRadius: 22, padding: "2.5rem", boxShadow: "0 4px 40px rgba(30,125,80,0.08)" }}>
+          <div style={{ background: "#ffffff", border: "1px solid #dceee4", borderRadius: 22, padding: "2rem", boxShadow: "0 4px 40px rgba(30,125,80,0.08)" }}>
             {submitted ? (
               <div style={{ textAlign: "center", padding: "3rem 0" }}>
                 <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✅</div>
@@ -549,22 +623,22 @@ export default function ReginxPortfolio() {
               </div>
             ) : (
               <>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", color: "#0f1f17", marginBottom: "1.75rem" }}>Send an Enquiry</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: "#0f1f17", marginBottom: "1.5rem" }}>Send an Enquiry</h3>
+                <div className="form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem", marginBottom: "0.85rem" }}>
                   {[["name", "Full Name *", "text"], ["email", "Email Address *", "email"]].map(([key, placeholder, type]) => (
                     <input key={key} type={type} placeholder={placeholder}
                       value={formData[key]}
                       onChange={e => setFormData(p => ({ ...p, [key]: e.target.value }))}
-                      style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.85rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", transition: "border-color 0.3s, box-shadow 0.3s" }}
+                      style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.8rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", transition: "border-color 0.3s, box-shadow 0.3s" }}
                     />
                   ))}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                  {[["organization", "Organization / Department", "text"], ["phone", "Phone Number", "tel"]].map(([key, placeholder, type]) => (
+                <div className="form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem", marginBottom: "0.85rem" }}>
+                  {[["organization", "Organization / Dept", "text"], ["phone", "Phone Number", "tel"]].map(([key, placeholder, type]) => (
                     <input key={key} type={type} placeholder={placeholder}
                       value={formData[key]}
                       onChange={e => setFormData(p => ({ ...p, [key]: e.target.value }))}
-                      style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.85rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", transition: "border-color 0.3s, box-shadow 0.3s" }}
+                      style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.8rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", transition: "border-color 0.3s, box-shadow 0.3s" }}
                     />
                   ))}
                 </div>
@@ -572,7 +646,7 @@ export default function ReginxPortfolio() {
                   value={formData.message}
                   onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
                   rows={4}
-                  style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.85rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", resize: "vertical", marginBottom: "1.25rem", transition: "border-color 0.3s, box-shadow 0.3s" }}
+                  style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.8rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", resize: "vertical", marginBottom: "1rem", transition: "border-color 0.3s, box-shadow 0.3s" }}
                 />
                 <button className="btn-primary" style={{ width: "100%", padding: "1rem", fontSize: "1rem" }} onClick={handleSubmit}>
                   Submit Enquiry →
@@ -587,12 +661,12 @@ export default function ReginxPortfolio() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: "#0f1f17", borderTop: "1px solid rgba(30,125,80,0.2)", padding: "3.5rem 3rem 2rem" }}>
+      <footer style={{ background: "#0f1f17", borderTop: "1px solid rgba(30,125,80,0.2)", padding: "3rem 1.5rem 2rem" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem", marginBottom: "3rem" }}>
+          <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "2.5rem", marginBottom: "2.5rem" }}>
             <div>
-              <div style={{ marginBottom: "1.25rem" }}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 56" width="220" height="56" aria-label="REGINX AI">
+              <div style={{ marginBottom: "1rem" }}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 56" width="190" height="50" aria-label="REGINX AI">
                   <defs>
                     <linearGradient id="ftHexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#2da06a"/>
@@ -604,12 +678,9 @@ export default function ReginxPortfolio() {
                     </filter>
                   </defs>
                   <g transform="translate(3,3)">
-                    <polygon points="25,2 45,13 45,37 25,48 5,37 5,13"
-                      fill="url(#ftHexGrad)" opacity="0.15"/>
-                    <polygon points="25,2 45,13 45,37 25,48 5,37 5,13"
-                      fill="none" stroke="url(#ftHexGrad)" strokeWidth="1.5" filter="url(#ftGlow)"/>
-                    <polygon points="25,9 38,17 38,33 25,41 12,33 12,17"
-                      fill="none" stroke="#2da06a" strokeWidth="0.7" opacity="0.35"/>
+                    <polygon points="25,2 45,13 45,37 25,48 5,37 5,13" fill="url(#ftHexGrad)" opacity="0.15"/>
+                    <polygon points="25,2 45,13 45,37 25,48 5,37 5,13" fill="none" stroke="url(#ftHexGrad)" strokeWidth="1.5" filter="url(#ftGlow)"/>
+                    <polygon points="25,9 38,17 38,33 25,41 12,33 12,17" fill="none" stroke="#2da06a" strokeWidth="0.7" opacity="0.35"/>
                     <g stroke="#2da06a" strokeWidth="0.8" opacity="0.55">
                       <line x1="25" y1="25" x2="25" y2="13"/>
                       <line x1="25" y1="25" x2="25" y2="37"/>
@@ -635,7 +706,7 @@ export default function ReginxPortfolio() {
                   <text x="100" y="47" fontFamily="'DM Sans', sans-serif" fontSize="6.5" letterSpacing="1.5" fill="#4a6b57">TECHNOLOGIES LLP · INDIA</text>
                 </svg>
               </div>
-              <p style={{ fontSize: "0.85rem", color: "#4a6b57", lineHeight: 1.75, maxWidth: 260 }}>
+              <p style={{ fontSize: "0.85rem", color: "#4a6b57", lineHeight: 1.75, maxWidth: 240 }}>
                 Empowering governments with responsible, scalable, and secure Artificial Intelligence solutions.
               </p>
             </div>
@@ -647,7 +718,7 @@ export default function ReginxPortfolio() {
               <div key={title}>
                 <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "1rem", fontWeight: 700 }}>{title}</div>
                 {items.map(item => (
-                  <div key={item} style={{ fontSize: "0.87rem", color: "#4a6b57", marginBottom: "0.65rem", cursor: "pointer", transition: "color 0.2s" }}
+                  <div key={item} style={{ fontSize: "0.85rem", color: "#4a6b57", marginBottom: "0.6rem", cursor: "pointer", transition: "color 0.2s" }}
                     onMouseEnter={e => e.currentTarget.style.color = "#a3d2b9"}
                     onMouseLeave={e => e.currentTarget.style.color = "#4a6b57"}
                   >{item}</div>
@@ -656,11 +727,11 @@ export default function ReginxPortfolio() {
             ))}
           </div>
 
-          <div style={{ borderTop: "1px solid rgba(30,125,80,0.15)", paddingTop: "1.75rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-            <div style={{ fontSize: "0.8rem", color: "#2d4a39" }}>
+          <div style={{ borderTop: "1px solid rgba(30,125,80,0.15)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+            <div style={{ fontSize: "0.78rem", color: "#2d4a39" }}>
               © 2024 REGINX AI Technologies LLP. All rights reserved. · CIN: AAQ-1234 · MSME Registered
             </div>
-            <div style={{ display: "flex", gap: "1.5rem" }}>
+            <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap" }}>
               {["LinkedIn", "Twitter", "GitHub", "YouTube"].map(s => (
                 <span key={s} style={{ fontSize: "0.8rem", color: "#2d4a39", cursor: "pointer", transition: "color 0.2s" }}
                   onMouseEnter={e => e.currentTarget.style.color = "#a3d2b9"}
