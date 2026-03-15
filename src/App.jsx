@@ -246,14 +246,19 @@ const Navbar = () => {
     <>
       <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:200, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 6vw", height:68, background:"rgba(255,255,255,0.96)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderBottom:`1px solid ${T.border}`, boxShadow:scrolled?"0 2px 24px rgba(11,21,16,0.07)":"none", transition:"box-shadow 0.3s" }}>
         {/* Logo */}
-        <a href="#hero" style={{ display:"flex", alignItems:"center", gap:10, textDecoration:"none" }}>
-          <div style={{ width:36, height:36, borderRadius:10, background:T.green500, display:"flex", alignItems:"center", justifyContent:"center" }}>
-            <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:800, fontSize:18, color:"#fff" }}>R</span>
-          </div>
-          <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:"1.18rem", color:T.ink, letterSpacing:"-0.025em" }}>
-            REGINX <span style={{ color:T.green500 }}>AI</span>
-          </span>
-        </a>
+       <a href="#hero" style={{ display:"flex", alignItems:"center", gap:10, textDecoration:"none" }}>
+  <img
+    src="/RAGINX_LO.jpeg"
+    alt="REGINX AI Technologies"
+    style={{
+      height: 40,
+      width: "auto",
+      objectFit: "contain",
+      borderRadius: 8,
+      display: "block",
+    }}
+  />
+</a>
 
         {/* Desktop nav */}
         <ul className="rg-desktop-nav" style={{ display:"flex", gap:28, listStyle:"none", alignItems:"center" }}>
@@ -315,7 +320,7 @@ const Hero = () => {
 
         {/* Body */}
         <p className="rg-hero-body" style={{ fontSize:isMobile?17:19, lineHeight:isMobile?1.6:1.66, color:T.ink60, maxWidth:600, fontWeight:400, marginBottom:32 }}>
-          REGINX AI Technologies LLP integrates artificial intelligence, IoT, and sector intelligence to enable better decision-making, operational optimisation, and system transparency across institutional and enterprise environments.
+          REGINX AI Technologies LLP develops AI-driven operational intelligence platforms that help organisations manage complex sector ecosystems such as logistics networks, agricultural systems, supply chains and institutional operations.
         </p>
 
         {/* CTAs */}
