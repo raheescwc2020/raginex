@@ -1,746 +1,987 @@
-import { useState, useEffect, useRef } from "react";
+/**
+ * REGINX AI Technologies LLP — Full Portal
+ * ─────────────────────────────────────────
+ * Prerequisites (run once in your project):
+ *   npm install @vapi-ai/web
+ *
+ * Drop this file in as your src/pages/Index.jsx
+ * or replace your existing Index.jsx.
+ */
 
-const NAV_LINKS = ["Home", "About", "Services", "Solutions", "Statistics", "Contact"];
+import { useState, useEffect, useRef, useCallback } from "react";
 
-const SERVICES = [
-  { icon: "🧠", title: "AI-Powered Decision Support", desc: "Intelligent systems that assist government officials in data-driven policy making and resource allocation." },
-  { icon: "🔍", title: "Document Intelligence", desc: "Automated extraction, classification and analysis of government records, applications and legal documents." },
-  { icon: "📊", title: "Predictive Analytics", desc: "Forecasting models for public health, infrastructure demands, urban planning and law enforcement." },
-  { icon: "🛡️", title: "Compliance & Audit AI", desc: "AI-driven audit tools ensuring transparency, detecting anomalies and preventing fraud in public finances." },
-  { icon: "🌐", title: "Smart Citizen Services", desc: "Conversational AI chatbots and portals delivering 24×7 multilingual assistance to citizens." },
-  { icon: "🔗", title: "Inter-Department Integration", desc: "Seamless AI-powered data exchange pipelines connecting ministries, departments and municipalities." },
-];
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
+const T = {
+  green50:  "#edfaf3",
+  green100: "#c6f0d8",
+  green200: "#8eddb2",
+  green300: "#5dca8e",
+  green400: "#34c26a",
+  green500: "#1fa854",
+  green600: "#167a3d",
+  green700: "#0d5229",
+  ink:      "#0b1510",
+  ink80:    "#1c2e22",
+  ink60:    "#3d5244",
+  ink40:    "#6b8271",
+  ink20:    "#a8bfac",
+  white:    "#ffffff",
+  offWhite: "#f7faf8",
+  surface:  "#f0f7f3",
+  border:   "rgba(31,168,84,0.13)",
+  borderMd: "rgba(31,168,84,0.25)",
+};
 
-const SOLUTIONS = [
-  { dept: "Warehouse & Logistics", icon: "🏭", items: ["Real-time inventory tracking & replenishment", "AI-driven slotting & space optimization", "Predictive demand forecasting", "Smart pick-pack-ship automation"] },
-  { dept: "Litigation Management", icon: "⚖️", items: ["End-to-end case lifecycle tracking", "AI-powered legal research & precedent search", "Court date scheduling & deadline alerts", "Inter-department legal coordination portal"] },
-  { dept: "Agriculture", icon: "🌾", items: ["Crop yield forecasting", "Drought risk mapping", "Subsidy disbursal AI"] }
-];
-
-const STATS = [
-  { value: 15, suffix: "+", label: "Government Clients" },
-  { value: 98, suffix: "%", label: "Uptime Guarantee" },
-  { value: 40, suffix: "+", label: "AI Models Deployed" },
-  { value: 5, suffix: "M+", label: "Citizens Served" },
-];
-
-const TEAM = [
-  { name: "XYZ", role: "", initials: "GM" },
-  { name: "ABC", role: "", initials: "RM" },
-  { name: "QRS", role: "", initials: "NK" },
-];
-
-function useCountUp(target, duration = 2000, start = false) {
-  const [count, setCount] = useState(0);
+/* ═══════════════════════════════════════════════
+   GLOBAL STYLES
+═══════════════════════════════════════════════ */
+const GlobalStyles = () => {
   useEffect(() => {
-    if (!start) return;
-    let startTime = null;
-    const step = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      setCount(Math.floor(progress * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [target, duration, start]);
-  return count;
+    const id = "reginx-global";
+    if (document.getElementById(id)) return;
+    const el = document.createElement("style");
+    el.id = id;
+    el.textContent = `
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: #0b1510; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+      /* Reveal */
+      .rg-reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.72s ease, transform 0.72s ease; }
+      .rg-reveal.on { opacity: 1; transform: translateY(0); }
+      .rg-d1 { transition-delay: 0.12s; }
+      .rg-d2 { transition-delay: 0.24s; }
+      .rg-d3 { transition-delay: 0.36s; }
+      .rg-d4 { transition-delay: 0.48s; }
+
+      /* Keyframes */
+      @keyframes rgPulse  { 0%,100%{transform:scale(1);opacity:1}    50%{transform:scale(1.7);opacity:0.45} }
+      @keyframes rgFloat  { 0%,100%{transform:translateY(0)}          50%{transform:translateY(-16px)} }
+      @keyframes rgFadeUp { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes rgBarIn  { from{transform:scaleX(0)}                  to{transform:scaleX(1)} }
+
+      .rg-hero-headline { animation: rgFadeUp 0.9s 0.28s both; }
+      .rg-hero-body     { animation: rgFadeUp 0.9s 0.46s both; }
+      .rg-hero-actions  { animation: rgFadeUp 0.9s 0.62s both; }
+      .rg-hero-badge    { animation: rgFadeUp 0.8s 0.12s both; }
+      .rg-hero-orb      { animation: rgFadeUp 1s   0.80s both; }
+
+      /* Card hovers */
+      .rg-cap-card    { transition: background 0.25s, box-shadow 0.25s; }
+      .rg-cap-card:hover { background: #f7faf8 !important; box-shadow: 0 8px 32px rgba(31,168,84,0.07); }
+      .rg-plat-card   { transition: border-color 0.28s, transform 0.28s, box-shadow 0.28s; }
+      .rg-plat-card:hover { border-color: rgba(31,168,84,0.35) !important; transform: translateY(-5px); box-shadow: 0 14px 40px rgba(31,168,84,0.09); }
+      .rg-plat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#34c26a,#8eddb2); border-radius:16px 16px 0 0; transform:scaleX(0); transform-origin:left; transition:transform 0.35s; }
+      .rg-plat-card:hover::before { transform:scaleX(1); }
+      .rg-deploy-card { transition: border-color 0.28s, transform 0.28s, box-shadow 0.28s; }
+      .rg-deploy-card:hover { border-color: rgba(31,168,84,0.35) !important; transform: translateY(-5px); box-shadow: 0 14px 40px rgba(31,168,84,0.09); }
+      .rg-stat-card   { transition: border-color 0.28s, transform 0.28s; }
+      .rg-stat-card:hover { border-color: rgba(52,194,106,0.4) !important; transform: translateY(-5px); }
+
+      /* Nav underline */
+      .rg-nav-link { position: relative; }
+      .rg-nav-link::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:1.5px; background:#1fa854; transform:scaleX(0); transition:transform 0.22s; }
+      .rg-nav-link:hover::after { transform:scaleX(1); }
+
+      /* Inputs */
+      .rg-input { transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; }
+      .rg-input:focus { border-color: #34c26a !important; background: #fff !important; box-shadow: 0 0 0 3px rgba(52,194,106,0.1); outline: none; }
+
+      /* Buttons */
+      .rg-btn-primary { transition: background 0.2s, transform 0.15s; }
+      .rg-btn-primary:hover { background: #167a3d !important; transform: translateY(-2px); }
+      .rg-btn-outline { transition: border-color 0.2s, background 0.2s, transform 0.15s; }
+      .rg-btn-outline:hover { border-color: #1fa854 !important; background: #edfaf3 !important; transform: translateY(-2px); }
+
+      /* ── VAPI FAB ── */
+      @keyframes vapiPing  { 0%  {transform:scale(1);opacity:0.55} 100%{transform:scale(2.2);opacity:0} }
+      @keyframes vapiSpin  { to  {transform:rotate(360deg)} }
+      @keyframes vapiWave  { 0%,100%{height:5px}             50%{height:22px} }
+      @keyframes vapiSlide { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes vapiPop   { 0%{opacity:0;transform:scale(0.82) translateY(12px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
+
+      .vapi-fab {
+        position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+        display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
+      }
+      .vapi-panel {
+        width: 308px; background: #fff; border-radius: 22px;
+        border: 1px solid rgba(31,168,84,0.22);
+        box-shadow: 0 20px 60px rgba(11,21,16,0.13), 0 4px 16px rgba(31,168,84,0.09);
+        padding: 26px 22px 20px;
+        animation: vapiPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+      }
+      .vapi-bar {
+        width: 3px; border-radius: 3px; flex-shrink: 0;
+        animation: vapiWave 0.85s ease-in-out infinite;
+      }
+    `;
+    document.head.appendChild(el);
+  }, []);
+  return null;
+};
+
+/* ═══════════════════════════════════════════════
+   HOOKS
+═══════════════════════════════════════════════ */
+function useScrollReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll(".rg-reveal");
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("on"); }),
+      { threshold: 0.1 }
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  });
 }
 
-function StatCard({ value, suffix, label, animate }) {
-  const count = useCountUp(value, 1800, animate);
+function useCounter(target, duration = 1800) {
+  const [value, setValue] = useState(0);
+  const ref     = useRef(null);
+  const counted = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !counted.current) {
+        counted.current = true;
+        let start;
+        const step = (ts) => {
+          if (!start) start = ts;
+          const p = Math.min((ts - start) / duration, 1);
+          setValue(Math.floor((1 - Math.pow(1 - p, 3)) * target));
+          if (p < 1) requestAnimationFrame(step); else setValue(target);
+        };
+        requestAnimationFrame(step);
+      }
+    }, { threshold: 0.4 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [target, duration]);
+  return [value, ref];
+}
+
+/* ═══════════════════════════════════════════════
+   INLINE SVG ICONS
+═══════════════════════════════════════════════ */
+const Icon = ({ name, size = 20, color = T.green400 }) => {
+  const s = { width: size, height: size, display: "block", flexShrink: 0 };
+  const icons = {
+    predict: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 20h20"/><path d="M6 16l4-8 4 5 3-4 3 7"/>
+        <circle cx="6" cy="16" r="1.2" fill={color} stroke="none"/>
+      </svg>
+    ),
+    pattern: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+        <path d="M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12M5.64 18.36l2.12-2.12m8.48-8.48 2.12-2.12"/>
+      </svg>
+    ),
+    decision: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <path d="M17.5 14v3h-3m3 0v3"/>
+      </svg>
+    ),
+    check: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    ),
+    mail: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>
+      </svg>
+    ),
+    map: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+    ),
+    globe: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+    ),
+    arrow: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14m-7-7 7 7-7 7"/>
+      </svg>
+    ),
+    mic: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="9" y="2" width="6" height="12" rx="3"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="9"  y1="22" x2="15" y2="22"/>
+      </svg>
+    ),
+    phoneOff: (
+      <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        <line x1="2" y1="2" x2="22" y2="22"/>
+      </svg>
+    ),
+    spinner: (
+      <svg style={{ ...s, animation: "vapiSpin 0.8s linear infinite" }} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round">
+        <circle cx="12" cy="12" r="10" opacity="0.18"/>
+        <path d="M12 2a10 10 0 0 1 10 10"/>
+      </svg>
+    ),
+  };
+  return icons[name] || null;
+};
+
+/* ═══════════════════════════════════════════════
+   SHARED PRIMITIVES
+═══════════════════════════════════════════════ */
+const SectionLabel = ({ children }) => (
+  <div style={{
+    display: "inline-flex", alignItems: "center", gap: 7,
+    fontSize: 11, fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase",
+    color: T.green500, background: T.green50, border: `1px solid ${T.green100}`,
+    padding: "5px 14px", borderRadius: 100,
+  }}>
+    <span style={{ width: 6, height: 6, borderRadius: "50%", background: T.green400 }} />
+    {children}
+  </div>
+);
+
+const Headline = ({ children, style = {} }) => (
+  <h2 style={{
+    fontFamily: "'Playfair Display', Georgia, serif",
+    fontSize: "clamp(42px, 4.2vw, 48px)", fontWeight: 700,
+    lineHeight: 1.17, letterSpacing: "-0.022em", color: T.ink, ...style,
+  }}>{children}</h2>
+);
+
+const BodyText = ({ children, style = {} }) => (
+  <p style={{
+    fontSize: "clamp(17px, 1.5vw, 18.5px)", lineHeight: 1.65,
+    color: T.ink60, fontWeight: 400, ...style,
+  }}>{children}</p>
+);
+
+/* ═══════════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════════ */
+const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  const links = [
+    { label: "Capabilities", href: "#capabilities" },
+    { label: "Platforms",    href: "#platforms"    },
+    { label: "Stats",        href: "#stats"        },
+    { label: "Deployment",   href: "#deployment"   },
+  ];
+
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e2ede8",
-        borderRadius: 16,
-        padding: "2rem 1.5rem",
-        textAlign: "center",
-        boxShadow: "0 2px 20px rgba(34,110,72,0.07)",
-        transition: "transform 0.3s, box-shadow 0.3s",
-      }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 20px 50px rgba(34,110,72,0.14)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 20px rgba(34,110,72,0.07)"; }}
-    >
-      <div style={{ fontSize: "2.8rem", fontWeight: 800, color: "#1e7d50", fontFamily: "'Playfair Display', serif", lineHeight: 1 }}>
-        {count}{suffix}
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "0 6vw", height: 68,
+      background: "rgba(255,255,255,0.95)",
+      backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+      borderBottom: `1px solid ${T.border}`,
+      boxShadow: scrolled ? "0 2px 24px rgba(11,21,16,0.07)" : "none",
+      transition: "box-shadow 0.3s",
+    }}>
+      <a href="#hero" style={{ display:"flex", alignItems:"center", gap:10, textDecoration:"none" }}>
+        <div style={{
+          width:36, height:36, borderRadius:10, background:T.green500,
+          display:"flex", alignItems:"center", justifyContent:"center",
+        }}>
+          <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:800, fontSize:18, color:"#fff" }}>R</span>
+        </div>
+        <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:"1.18rem", color:T.ink, letterSpacing:"-0.025em" }}>
+          REGINX <span style={{ color:T.green500 }}>AI</span>
+        </span>
+      </a>
+
+      <ul style={{ display:"flex", gap:28, listStyle:"none", alignItems:"center" }}>
+        {links.map((l) => (
+          <li key={l.href}>
+            <a href={l.href} className="rg-nav-link" style={{ fontSize:14, fontWeight:500, color:T.ink60, textDecoration:"none" }}
+              onMouseEnter={e => e.target.style.color = T.green500}
+              onMouseLeave={e => e.target.style.color = T.ink60}
+            >{l.label}</a>
+          </li>
+        ))}
+        <li>
+          <a href="#contact" className="rg-btn-primary" style={{
+            background:T.green500, color:"#fff", padding:"9px 22px",
+            borderRadius:100, fontSize:14, fontWeight:600, textDecoration:"none",
+          }}>Contact Us</a>
+        </li>
+      </ul>
+    </nav>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+const Hero = () => (
+  <section id="hero" style={{ minHeight:"100vh", display:"flex", alignItems:"center", padding:"120px 6vw 80px", position:"relative", overflow:"hidden", background:T.white }}>
+    <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+      background:`radial-gradient(ellipse 55% 60% at 75% 35%, rgba(52,194,106,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 45% at 15% 75%, rgba(31,168,84,0.05) 0%, transparent 55%)` }} />
+    <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+      backgroundImage:`linear-gradient(to right,rgba(31,168,84,0.04) 1px,transparent 1px),linear-gradient(to bottom,rgba(31,168,84,0.04) 1px,transparent 1px)`,
+      backgroundSize:"64px 64px",
+      maskImage:"radial-gradient(ellipse 85% 75% at 50% 45%, black, transparent)" }} />
+
+    <div style={{ position:"relative", zIndex:1, maxWidth:760 }}>
+      <div className="rg-hero-badge" style={{
+        display:"inline-flex", alignItems:"center", gap:9, fontSize:11.5, fontWeight:700,
+        letterSpacing:"0.11em", textTransform:"uppercase", color:T.green600,
+        background:T.green50, border:`1px solid ${T.green100}`,
+        padding:"7px 16px", borderRadius:100, marginBottom:28,
+      }}>
+        <span style={{ width:7, height:7, borderRadius:"50%", background:T.green400, animation:"rgPulse 2s infinite" }} />
+        AI-Driven Operational Intelligence
       </div>
-      <div style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#6b9e84", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>
-        {label}
+
+      <h1 className="rg-hero-headline" style={{
+        fontFamily:"'Playfair Display',serif", fontSize:"clamp(36px,5.8vw,60px)",
+        fontWeight:800, lineHeight:1.09, letterSpacing:"-0.028em", color:T.ink, marginBottom:24,
+      }}>
+        Intelligent Systems<br />
+        for <span style={{ color:T.green500 }}>Complex</span><br />
+        <span style={{ position:"relative", display:"inline-block" }}>
+          Sector Ecosystems
+          <span style={{ position:"absolute", bottom:4, left:0, right:0, height:4, background:T.green100, borderRadius:3, animation:"rgBarIn 0.8s 1.1s both", zIndex:-1 }} />
+        </span>
+      </h1>
+
+      <p className="rg-hero-body" style={{ fontSize:"clamp(17px,1.8vw,19px)", lineHeight:1.66, color:T.ink60, maxWidth:600, fontWeight:400, marginBottom:36 }}>
+        REGINX AI Technologies LLP integrates artificial intelligence, IoT, and sector intelligence to enable
+        better decision-making, operational optimisation, and system transparency across institutional and enterprise environments.
+      </p>
+
+      <div className="rg-hero-actions" style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+        <a href="#platforms" className="rg-btn-primary" style={{
+          display:"inline-flex", alignItems:"center", gap:9, background:T.green500, color:"#fff",
+          padding:"14px 30px", borderRadius:100, fontSize:15, fontWeight:600, textDecoration:"none",
+        }}>
+          Explore Platforms <Icon name="arrow" size={16} color="#fff" />
+        </a>
+        <a href="#contact" className="rg-btn-outline" style={{
+          display:"inline-flex", alignItems:"center", gap:9, background:"transparent", color:T.ink,
+          padding:"14px 30px", borderRadius:100, fontSize:15, fontWeight:600, textDecoration:"none",
+          border:`1.5px solid ${T.borderMd}`,
+        }}>
+          Get in Touch
+        </a>
       </div>
     </div>
-  );
-}
 
-export default function ReginxPortfolio() {
-  const [activeNav, setActiveNav] = useState("Home");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [statsVisible, setStatsVisible] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", organization: "", phone: "", message: "" });
-  const [submitted, setSubmitted] = useState(false);
-  const statsRef = useRef(null);
+    <div className="rg-hero-orb" style={{ position:"absolute", right:"5vw", top:"50%", transform:"translateY(-50%)", width:"min(360px,38vw)", aspectRatio:"1" }}>
+      <div style={{ width:"100%", height:"100%", borderRadius:"50%", background:`radial-gradient(circle at 38% 38%,${T.green100},${T.green400} 55%,${T.green700})`, opacity:0.18, animation:"rgFloat 7s ease-in-out infinite" }} />
+      <div style={{ position:"absolute", inset:"-18px", borderRadius:"50%", border:`1px solid ${T.green100}`, animation:"rgFloat 7s ease-in-out infinite reverse" }} />
+      <div style={{ position:"absolute", inset:"-48px", borderRadius:"50%", border:`1px solid rgba(31,168,84,0.07)` }} />
+    </div>
+  </section>
+);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setStatsVisible(true);
-    }, { threshold: 0.2 });
-    if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  // Close menu on outside click
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handler = () => setMenuOpen(false);
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
-  }, [menuOpen]);
-
-  const scrollTo = (id) => {
-    const el = document.getElementById(id.toLowerCase());
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-    setActiveNav(id);
-    setMenuOpen(false);
-  };
-
-  const handleSubmit = () => {
-    if (!formData.name || !formData.email || !formData.message) return;
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
-    setFormData({ name: "", email: "", organization: "", phone: "", message: "" });
-  };
-
+/* ═══════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════ */
+const StatCard = ({ target, suffix, label }) => {
+  const [val, ref] = useCounter(target);
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#f8fbf9", color: "#1a2e24", minHeight: "100vh", overflowX: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f0f7f3; }
-        ::-webkit-scrollbar-thumb { background: #3a9b6e; border-radius: 3px; }
+    <div ref={ref} className="rg-stat-card" style={{ padding:"2.5rem 1.5rem", textAlign:"center", border:"1px solid rgba(255,255,255,0.06)", borderRadius:16 }}>
+      <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(2.6rem,4vw,3.4rem)", fontWeight:800, color:"#fff", lineHeight:1, letterSpacing:"-0.04em" }}>
+        {val}<span style={{ color:T.green400 }}>{suffix}</span>
+      </div>
+      <div style={{ marginTop:8, fontSize:13.5, color:"rgba(255,255,255,0.4)", fontWeight:400 }}>{label}</div>
+    </div>
+  );
+};
 
-        @keyframes float { 0%,100%{transform:translateY(0) translateX(0);opacity:0.3} 50%{transform:translateY(-28px) translateX(12px);opacity:0.7} }
-        @keyframes pulseRing { 0%{transform:scale(0.8);opacity:0.6} 100%{transform:scale(2.2);opacity:0} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        @keyframes slideDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+const Stats = () => {
+  useScrollReveal();
+  return (
+    <section id="stats" style={{ background:T.ink, padding:"80px 6vw", position:"relative", overflow:"hidden" }}>
+      <div style={{ position:"absolute", inset:0,
+        backgroundImage:`repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,0.018) 59px,rgba(255,255,255,0.018) 60px),
+                          repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.018) 59px,rgba(255,255,255,0.018) 60px)` }} />
+      <div style={{ position:"absolute", top:-120, right:-80, width:440, height:440, borderRadius:"50%", background:"radial-gradient(circle,rgba(52,194,106,0.1),transparent 65%)" }} />
+      <div style={{ position:"relative" }}>
+        <div className="rg-reveal" style={{ textAlign:"center", marginBottom:44 }}>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:"0.13em", textTransform:"uppercase", color:T.green400, marginBottom:8 }}>Numbers That Matter</div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(1.7rem,3vw,2.1rem)", fontWeight:700, color:"#fff", letterSpacing:"-0.02em" }}>The scale of REGINX intelligence</div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:"1.25rem" }}>
+          {[
+            { target:5,   suffix:"+", label:"Platform Families" },
+            { target:3,   suffix:"",  label:"Core AI Capabilities" },
+            { target:100, suffix:"+", label:"Use Case Applications" },
+            { target:2,   suffix:"",  label:"Deployment Sectors" },
+            { target:15,  suffix:"+", label:"Sector Intelligence Modules" },
+          ].map((s, i) => <StatCard key={i} {...s} />)}
+        </div>
+      </div>
+    </section>
+  );
+};
 
-        .hero-title { animation: fadeUp 1s ease 0.2s both; }
-        .hero-sub { animation: fadeUp 1s ease 0.5s both; }
-        .hero-btns { animation: fadeUp 1s ease 0.8s both; }
-        .hero-badge { animation: fadeUp 1s ease 0.1s both; }
+/* ═══════════════════════════════════════════════
+   CORE CAPABILITIES
+═══════════════════════════════════════════════ */
+const capData = [
+  {
+    icon:"predict", title:"Predictive Operational Intelligence",
+    desc:"AI systems analyse operational data to anticipate future developments — enabling organisations to get ahead of challenges rather than react to them.",
+    points:["Predicting logistics bottlenecks before they cascade","Forecasting infrastructure utilisation and capacity needs","Identifying agricultural production trends in advance","Generating real-time supply-chain disruption alerts","Demand forecasting across distributed networks"],
+    tags:["Logistics","Forecasting","Supply Chain","Infrastructure"],
+  },
+  {
+    icon:"pattern", title:"Pattern Recognition & Anomaly Detection",
+    desc:"AI systems detect irregularities within complex operational datasets — supporting risk monitoring and maintaining operational transparency at scale.",
+    points:["Identifying supply chain disruptions from data signals","Detecting compliance anomalies across institutions","Spotting infrastructure inefficiencies in real time","Identifying unusual operational behaviour patterns","Flagging cold chain temperature deviations automatically"],
+    tags:["Risk Monitoring","Compliance","Anomaly Detection","Transparency"],
+  },
+  {
+    icon:"decision", title:"Decision Support & Strategic Intelligence",
+    desc:"AI systems assist decision-makers in complex environments — turning large datasets into clear, actionable strategic intelligence.",
+    points:["Sector intelligence dashboards with live data integration","Operational performance analysis and benchmarking","Scenario modelling for strategic planning","Policy and regulatory monitoring feeds","Expert collaboration and knowledge synthesis platforms"],
+    tags:["Dashboards","Scenario Modelling","Policy Monitoring","Strategy"],
+  },
+];
 
-        .nav-link {
-          position: relative; cursor: pointer; transition: color 0.3s;
-        }
-        .nav-link::after {
-          content: ''; position: absolute; bottom: -4px; left: 0;
-          width: 0; height: 2px; background: #1e7d50;
-          transition: width 0.3s; border-radius: 2px;
-        }
-        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+const CapCard = ({ data, delay }) => (
+  <div className={`rg-cap-card rg-reveal ${delay}`} style={{ background:T.white, padding:"36px 32px", borderRight:`1px solid ${T.border}` }}>
+    <div style={{ display:"flex", alignItems:"flex-start", gap:16, marginBottom:18 }}>
+      <div style={{ width:52, height:52, borderRadius:14, flexShrink:0, background:T.green50, border:`1px solid ${T.green100}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <Icon name={data.icon} size={24} color={T.green400} />
+      </div>
+      <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"1.15rem", fontWeight:700, color:T.ink, lineHeight:1.28, letterSpacing:"-0.012em", paddingTop:5 }}>{data.title}</h3>
+    </div>
+    <p style={{ fontSize:15, lineHeight:1.7, color:T.ink60, marginBottom:22 }}>{data.desc}</p>
+    <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
+      {data.points.map((pt, i) => (
+        <li key={i} style={{ display:"flex", alignItems:"flex-start", gap:10, fontSize:14, color:T.ink60, lineHeight:1.6 }}>
+          <span style={{ width:20, height:20, borderRadius:6, flexShrink:0, background:T.green50, border:`1px solid ${T.green100}`, display:"flex", alignItems:"center", justifyContent:"center", marginTop:1 }}>
+            <Icon name="check" size={10} color={T.green500} />
+          </span>
+          {pt}
+        </li>
+      ))}
+    </ul>
+    <div style={{ display:"flex", flexWrap:"wrap", gap:7, paddingTop:20, borderTop:`1px solid ${T.border}` }}>
+      {data.tags.map(tag => (
+        <span key={tag} style={{ fontSize:12, fontWeight:500, padding:"4px 12px", borderRadius:100, background:T.green50, color:T.green600, border:`1px solid ${T.green100}` }}>{tag}</span>
+      ))}
+    </div>
+  </div>
+);
 
-        .service-card { transition: transform 0.35s, box-shadow 0.35s, border-color 0.35s; cursor: default; }
-        .service-card:hover {
-          transform: translateY(-8px) !important;
-          box-shadow: 0 24px 60px rgba(30,125,80,0.12) !important;
-          border-color: rgba(30,125,80,0.3) !important;
-        }
+const CoreCapabilities = () => {
+  useScrollReveal();
+  return (
+    <section id="capabilities" style={{ padding:"100px 6vw", background:T.white }}>
+      <div className="rg-reveal" style={{ marginBottom:52 }}>
+        <SectionLabel>Core AI Capabilities</SectionLabel>
+        <Headline style={{ marginTop:14, maxWidth:640 }}>Intelligence that<br />anticipates &amp; acts</Headline>
+        <BodyText style={{ marginTop:16, maxWidth:580 }}>Three foundational AI systems that power every REGINX platform — from predicting disruptions to supporting strategic decisions at institutional scale.</BodyText>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:0, background:T.border, border:`1px solid ${T.border}`, borderRadius:24, overflow:"hidden" }}>
+        {capData.map((d, i) => <CapCard key={i} data={d} delay={["","rg-d1","rg-d2"][i]} />)}
+      </div>
+    </section>
+  );
+};
 
-        .btn-primary {
-          background: linear-gradient(135deg, #1e7d50, #2da06a);
-          border: none; color: #fff;
-          padding: 1rem 2.2rem; border-radius: 50px;
-          font-size: 1rem; font-weight: 600; cursor: pointer;
-          transition: transform 0.25s, box-shadow 0.25s;
-          letter-spacing: 0.03em; font-family: 'DM Sans', sans-serif;
-          box-shadow: 0 4px 20px rgba(30,125,80,0.25);
-        }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(30,125,80,0.38); }
+/* ═══════════════════════════════════════════════
+   PLATFORMS
+═══════════════════════════════════════════════ */
+const platformsData = [
+  { num:"01", title:"Infrastructure & Logistics Intelligence",   desc:"AI-driven systems designed to analyse and optimise logistics and infrastructure environments.",             items:["Warehouse ecosystem intelligence","Logistics network analysis","Transport flow monitoring","Infrastructure utilisation analytics","Distribution network optimisation"] },
+  { num:"02", title:"Agriculture & Food Systems Intelligence",   desc:"AI-enabled platforms supporting agricultural ecosystems and food supply chains.",                           items:["Crop production intelligence","Farm-to-market logistics analysis","Agricultural supply chain monitoring","Food distribution systems","Agricultural data platforms"] },
+  { num:"03", title:"Cold Chain & Perishable Supply",            desc:"AI-driven systems supporting temperature-sensitive supply chains and product integrity.",                    items:["Cold storage infrastructure monitoring","Temperature stability analytics","Perishable goods logistics monitoring","Pharmaceutical cold chain systems","Food export logistics"] },
+  { num:"04", title:"Institutional & Compliance Intelligence",   desc:"AI-assisted platforms for complex legal, administrative and compliance environments.",                      items:["Litigation lifecycle management","Document intelligence systems","Compliance monitoring","Regulatory data systems","Audit and risk analytics"] },
+  { num:"05", title:"Knowledge & Sector Intelligence",           desc:"Digital platforms for sector intelligence, analysis and knowledge ecosystems.",                             items:["Sector intelligence systems","Policy and regulatory monitoring","Knowledge databases","Expert collaboration platforms","Dialogue and research environments"] },
+];
 
-        .btn-outline {
-          background: transparent;
-          border: 1.5px solid #1e7d50;
-          color: #1e7d50;
-          padding: 1rem 2.2rem; border-radius: 50px;
-          font-size: 1rem; font-weight: 500; cursor: pointer;
-          transition: all 0.25s; letter-spacing: 0.03em;
-          font-family: 'DM Sans', sans-serif;
-        }
-        .btn-outline:hover { background: #1e7d50; color: #fff; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(30,125,80,0.25); }
+const PlatCard = ({ data, delay }) => (
+  <div className={`rg-plat-card rg-reveal ${delay}`} style={{ background:T.white, border:`1px solid ${T.border}`, borderRadius:20, padding:"30px 28px", position:"relative", overflow:"hidden" }}>
+    <div style={{ fontSize:11, fontWeight:700, letterSpacing:"0.13em", textTransform:"uppercase", color:T.green400, marginBottom:10 }}>{data.num}</div>
+    <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"1.1rem", fontWeight:700, color:T.ink, lineHeight:1.28, letterSpacing:"-0.012em", marginBottom:10 }}>{data.title}</h3>
+    <p style={{ fontSize:14, lineHeight:1.65, color:T.ink60, marginBottom:20 }}>{data.desc}</p>
+    <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:8 }}>
+      {data.items.map(it => (
+        <li key={it} style={{ display:"flex", alignItems:"center", gap:9, fontSize:13.5, color:T.ink60 }}>
+          <span style={{ width:5, height:5, borderRadius:"50%", background:T.green400, flexShrink:0 }} />{it}
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
-        input, textarea { outline: none; font-family: 'DM Sans', sans-serif; }
-        input:focus, textarea:focus {
-          border-color: #1e7d50 !important;
-          box-shadow: 0 0 0 3px rgba(30,125,80,0.1) !important;
-        }
+const Platforms = () => {
+  useScrollReveal();
+  return (
+    <section id="platforms" style={{ padding:"100px 6vw", background:T.surface }}>
+      <div className="rg-reveal" style={{ marginBottom:52 }}>
+        <SectionLabel>Platform Ecosystem</SectionLabel>
+        <Headline style={{ marginTop:14, maxWidth:640 }}>Five platform families.<br />One connected intelligence.</Headline>
+        <BodyText style={{ marginTop:16, maxWidth:600 }}>REGINX develops sector platforms that connect central management with distributed field-level networks — keeping digital systems anchored to real operational ecosystems.</BodyText>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:"1.25rem" }}>
+        {platformsData.map((d, i) => <PlatCard key={i} data={d} delay={["","rg-d1","rg-d2","rg-d3","rg-d4"][i % 5]} />)}
+      </div>
+    </section>
+  );
+};
 
-        .shimmer-text {
-          background: linear-gradient(90deg, #1e7d50, #2da06a, #1e7d50);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: shimmer 4s linear infinite;
-        }
-
-        section { scroll-margin-top: 70px; }
-
-        /* Mobile menu */
-        .mobile-menu {
-          animation: slideDown 0.25s ease both;
-        }
-
-        /* Hamburger */
-        .hamburger-line {
-          display: block;
-          width: 22px;
-          height: 2px;
-          background: #1a2e24;
-          border-radius: 2px;
-          transition: all 0.3s;
-          transform-origin: center;
-        }
-
-        /* Responsive grid overrides */
-        @media (max-width: 768px) {
-          .about-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
-          .contact-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
-          .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
-          .hero-btns-inner { flex-direction: column !important; align-items: stretch !important; }
-          .hero-btns-inner button { width: 100% !important; }
-          .form-row { grid-template-columns: 1fr !important; }
-          .stat-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-
-        @media (max-width: 480px) {
-          .footer-grid { grid-template-columns: 1fr !important; }
-          .stat-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-      `}</style>
-
-      {/* Subtle floating particles */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} style={{
-            position: "absolute",
-            width: Math.random() * 5 + 2 + "px",
-            height: Math.random() * 5 + 2 + "px",
-            borderRadius: "50%",
-            background: `rgba(30,125,80,${Math.random() * 0.15 + 0.05})`,
-            left: Math.random() * 100 + "%",
-            top: Math.random() * 100 + "%",
-            animation: `float ${Math.random() * 9 + 7}s ease-in-out ${Math.random() * 5}s infinite`,
-          }} />
+/* ═══════════════════════════════════════════════
+   DEPLOYMENT
+═══════════════════════════════════════════════ */
+const Deployment = () => {
+  useScrollReveal();
+  const cards = [
+    { emoji:"🏛️", title:"Public Sector Institutions",  bar:`linear-gradient(90deg,${T.green500},${T.green300})`, items:["Infrastructure agencies","Warehousing corporations","Sectoral authorities","Regulatory organisations"] },
+    { emoji:"🏢", title:"Private Sector Enterprises",  bar:`linear-gradient(90deg,${T.green300},${T.green100})`, items:["Logistics companies","Warehouse operators","Agri supply chain firms","Cold chain operators","Infrastructure companies"] },
+  ];
+  return (
+    <section id="deployment" style={{ padding:"100px 6vw", background:T.white }}>
+      <div className="rg-reveal" style={{ marginBottom:52 }}>
+        <SectionLabel>Deployment Environments</SectionLabel>
+        <Headline style={{ marginTop:14 }}>Built for institutions.<br />Scaled for enterprise.</Headline>
+        <BodyText style={{ marginTop:16, maxWidth:580 }}>REGINX platforms deploy across public sector institutions and private enterprises — wherever large and complex operational ecosystems need intelligent management.</BodyText>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:"2rem" }}>
+        {cards.map((c, i) => (
+          <div key={i} className={`rg-deploy-card rg-reveal ${i===1?"rg-d1":""}`} style={{ background:T.white, border:`1px solid ${T.border}`, borderRadius:24, padding:"36px 32px", position:"relative", overflow:"hidden" }}>
+            <div style={{ position:"absolute", top:0, left:0, right:0, height:4, background:c.bar }} />
+            <span style={{ fontSize:"2.2rem", marginBottom:16, display:"block" }}>{c.emoji}</span>
+            <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"1.3rem", fontWeight:700, color:T.ink, letterSpacing:"-0.015em", marginBottom:20 }}>{c.title}</h3>
+            <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:11 }}>
+              {c.items.map(it => (
+                <li key={it} style={{ display:"flex", alignItems:"flex-start", gap:11, fontSize:15, color:T.ink60, lineHeight:1.55 }}>
+                  <span style={{ width:20, height:20, borderRadius:"50%", flexShrink:0, background:T.green50, border:`1px solid ${T.green200}`, display:"flex", alignItems:"center", justifyContent:"center", marginTop:1 }}>
+                    <Icon name="check" size={10} color={T.green500} />
+                  </span>
+                  {it}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
       </div>
+    </section>
+  );
+};
 
-      {/* ── NAVBAR ── */}
-      <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
-        background: "#ffffff",
-        borderBottom: "1px solid #e8f0ec",
-        boxShadow: scrolled ? "0 2px 24px rgba(30,125,80,0.08)" : "0 1px 0 #e8f0ec",
-        transition: "box-shadow 0.4s ease",
-      }}>
-        <div style={{
-          padding: "0 1.25rem",
-          height: 64,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          maxWidth: 1300,
-          margin: "0 auto",
-        }}>
-          {/* Logo */}
-          <div style={{ cursor: "pointer", display: "flex", alignItems: "center", flexShrink: 0 }} onClick={() => scrollTo("home")}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 64" width="200" height="52" aria-label="REGINX AI">
-              <defs>
-                <linearGradient id="navHexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1e7d50"/>
-                  <stop offset="100%" stopColor="#2da06a"/>
-                </linearGradient>
-                <linearGradient id="navTextGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#0f1f17"/>
-                  <stop offset="100%" stopColor="#1a3d28"/>
-                </linearGradient>
-                <filter id="navGlow" x="-40%" y="-40%" width="180%" height="180%">
-                  <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-              </defs>
-              <g transform="translate(4, 4)">
-                <polygon points="28,2 50,14 50,42 28,54 6,42 6,14" fill="url(#navHexGrad)" opacity="0.12"/>
-                <polygon points="28,2 50,14 50,42 28,54 6,42 6,14" fill="none" stroke="url(#navHexGrad)" strokeWidth="1.5" filter="url(#navGlow)"/>
-                <polygon points="28,10 44,19 44,37 28,46 12,37 12,19" fill="none" stroke="#1e7d50" strokeWidth="0.8" opacity="0.35"/>
-                <g stroke="#1e7d50" strokeWidth="0.9" opacity="0.5">
-                  <line x1="28" y1="28" x2="28" y2="14"/>
-                  <line x1="28" y1="28" x2="28" y2="42"/>
-                  <line x1="28" y1="28" x2="17" y2="21"/>
-                  <line x1="28" y1="28" x2="39" y2="21"/>
-                  <line x1="28" y1="28" x2="17" y2="35"/>
-                  <line x1="28" y1="28" x2="39" y2="35"/>
-                </g>
-                <g fill="#1e7d50" opacity="0.7">
-                  <circle cx="28" cy="14" r="2"/>
-                  <circle cx="28" cy="42" r="2"/>
-                  <circle cx="17" cy="21" r="2"/>
-                  <circle cx="39" cy="21" r="2"/>
-                  <circle cx="17" cy="35" r="2"/>
-                  <circle cx="39" cy="35" r="2"/>
-                </g>
-                <circle cx="28" cy="28" r="4.5" fill="#1e7d50" filter="url(#navGlow)"/>
-                <circle cx="28" cy="28" r="7" fill="none" stroke="#2da06a" strokeWidth="0.8" opacity="0.4"/>
-              </g>
-              <line x1="66" y1="12" x2="66" y2="52" stroke="#dceee4" strokeWidth="1.2"/>
-              <text x="78" y="38" fontFamily="'Playfair Display', Georgia, serif" fontSize="26" fontWeight="800" letterSpacing="3" fill="url(#navTextGrad)">REGINX</text>
-              <rect x="80" y="43" width="28" height="13" rx="3" fill="#1e7d50"/>
-              <text x="94" y="53" fontFamily="'DM Sans', sans-serif" fontSize="8" fontWeight="700" letterSpacing="1.5" textAnchor="middle" fill="#ffffff">AI</text>
-              <text x="114" y="53" fontFamily="'DM Sans', sans-serif" fontSize="7.5" fontWeight="400" letterSpacing="1.8" fill="#7aab92">TECHNOLOGIES LLP</text>
-            </svg>
-          </div>
+/* ═══════════════════════════════════════════════
+   CONTACT FORM
+═══════════════════════════════════════════════ */
+const ContactForm = () => {
+  useScrollReveal();
+  const [form, setForm]           = useState({ fn:"", ln:"", email:"", org:"", sector:"", message:"" });
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError]         = useState("");
 
-          {/* Desktop Nav */}
-          <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}
-            className="desktop-nav"
-          >
-            <style>{`
-              @media (max-width: 900px) { .desktop-nav { display: none !important; } .hamburger-btn { display: flex !important; } }
-              @media (min-width: 901px) { .hamburger-btn { display: none !important; } }
-            `}</style>
-            {NAV_LINKS.map(link => (
-              <span key={link}
-                className={`nav-link${activeNav === link ? " active" : ""}`}
-                style={{ fontSize: "0.88rem", color: activeNav === link ? "#1e7d50" : "#4a6b57", fontWeight: 500, letterSpacing: "0.03em", whiteSpace: "nowrap" }}
-                onClick={() => scrollTo(link)}>
-                {link}
-              </span>
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!form.fn || !form.email) { setError("Please enter your name and email."); return; }
+    setError(""); setSubmitted(true);
+  };
+
+  const inputStyle = { width:"100%", padding:"12px 16px", border:`1.5px solid ${T.border}`, borderRadius:10, background:T.offWhite, fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:15, color:T.ink, appearance:"none" };
+  const labelStyle = { display:"block", fontSize:13, fontWeight:600, color:T.ink80, marginBottom:7 };
+
+  return (
+    <section id="contact" style={{ padding:"100px 6vw", background:T.surface }}>
+      <div className="rg-reveal" style={{ marginBottom:52 }}>
+        <SectionLabel>Get in Touch</SectionLabel>
+        <Headline style={{ marginTop:14 }}>Let's build something<br />intelligent together</Headline>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1.15fr", gap:"5rem", alignItems:"start" }}>
+        <div className="rg-reveal">
+          <BodyText style={{ marginBottom:36 }}>Whether you're a public institution or a private enterprise, REGINX is ready to design an operational intelligence platform tailored to your sector ecosystem.</BodyText>
+          <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+            {[
+              { icon:"mail",  label:"Email",        val:"info@reginx.ai" },
+              { icon:"map",   label:"Registered",   val:"India · REGINX AI Technologies LLP" },
+              { icon:"globe", label:"Sectors Served", val:"Logistics · Agriculture · Cold Chain · Institutional · Knowledge" },
+            ].map(c => (
+              <div key={c.label} style={{ display:"flex", alignItems:"flex-start", gap:14, padding:"16px 18px", background:T.white, border:`1px solid ${T.border}`, borderRadius:12 }}>
+                <div style={{ width:40, height:40, borderRadius:10, flexShrink:0, background:T.green50, border:`1px solid ${T.green100}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <Icon name={c.icon} size={18} color={T.green500} />
+                </div>
+                <div>
+                  <div style={{ fontSize:11, textTransform:"uppercase", letterSpacing:"0.1em", color:T.ink40, fontWeight:600, marginBottom:3 }}>{c.label}</div>
+                  <div style={{ fontSize:14.5, color:T.ink, fontWeight:500, lineHeight:1.45 }}>{c.val}</div>
+                </div>
+              </div>
             ))}
-            <button className="btn-primary" style={{ padding: "0.6rem 1.4rem", fontSize: "0.88rem", whiteSpace: "nowrap" }} onClick={() => scrollTo("Contact")}>
-              Get a Demo
-            </button>
           </div>
-
-          {/* Hamburger button */}
-          <button
-            className="hamburger-btn"
-            onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              display: "none", flexDirection: "column", gap: "5px",
-              padding: "8px", borderRadius: 8,
-              alignItems: "center", justifyContent: "center",
-            }}
-            aria-label="Toggle menu"
-          >
-            <span className="hamburger-line" style={{ transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none" }} />
-            <span className="hamburger-line" style={{ opacity: menuOpen ? 0 : 1, transform: menuOpen ? "scaleX(0)" : "none" }} />
-            <span className="hamburger-line" style={{ transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none" }} />
-          </button>
         </div>
 
-        {/* Mobile Menu Dropdown */}
-        {menuOpen && (
-          <div
-            className="mobile-menu"
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: "#ffffff",
-              borderTop: "1px solid #e8f0ec",
-              padding: "1rem 1.25rem 1.5rem",
-              boxShadow: "0 12px 40px rgba(30,125,80,0.12)",
-            }}
-          >
-            {NAV_LINKS.map(link => (
-              <div key={link}
-                onClick={() => scrollTo(link)}
-                style={{
-                  padding: "0.85rem 0.5rem",
-                  borderBottom: "1px solid #f0f7f3",
-                  fontSize: "0.95rem",
-                  color: activeNav === link ? "#1e7d50" : "#1a2e24",
-                  fontWeight: activeNav === link ? 600 : 400,
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                }}
+        <div className="rg-reveal rg-d1" style={{ background:T.white, border:`1px solid ${T.borderMd}`, borderRadius:24, padding:"36px 32px", boxShadow:"0 4px 40px rgba(31,168,84,0.06)" }}>
+          {submitted ? (
+            <div style={{ textAlign:"center", padding:"3rem 1rem" }}>
+              <div style={{ fontSize:"3rem", marginBottom:16 }}>✅</div>
+              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"1.5rem", fontWeight:700, color:T.ink, marginBottom:10 }}>Message received.</div>
+              <p style={{ fontSize:15.5, color:T.ink60, lineHeight:1.65 }}>Our team will be in touch with you shortly.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:16 }}>
+                <div><label style={labelStyle}>First Name</label><input name="fn" value={form.fn} onChange={handleChange} placeholder="Rajan" style={inputStyle} className="rg-input"/></div>
+                <div><label style={labelStyle}>Last Name</label><input name="ln" value={form.ln} onChange={handleChange} placeholder="Menon" style={inputStyle} className="rg-input"/></div>
+              </div>
+              <div style={{ marginBottom:16 }}><label style={labelStyle}>Email Address</label><input name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@organisation.com" style={inputStyle} className="rg-input"/></div>
+              <div style={{ marginBottom:16 }}><label style={labelStyle}>Organisation</label><input name="org" value={form.org} onChange={handleChange} placeholder="Your organisation name" style={inputStyle} className="rg-input"/></div>
+              <div style={{ marginBottom:16 }}>
+                <label style={labelStyle}>Sector of Interest</label>
+                <select name="sector" value={form.sector} onChange={handleChange} style={inputStyle} className="rg-input">
+                  <option value="" disabled>Select a platform area</option>
+                  <option>Infrastructure &amp; Logistics Intelligence</option>
+                  <option>Agriculture &amp; Food Systems</option>
+                  <option>Cold Chain &amp; Perishable Supply</option>
+                  <option>Institutional &amp; Compliance Intelligence</option>
+                  <option>Knowledge &amp; Sector Intelligence</option>
+                  <option>Multiple / Other</option>
+                </select>
+              </div>
+              <div style={{ marginBottom:20 }}><label style={labelStyle}>Message</label><textarea name="message" value={form.message} onChange={handleChange} placeholder="Tell us about your operational environment and what you'd like to solve…" style={{ ...inputStyle, minHeight:120, resize:"vertical" }} className="rg-input"/></div>
+              {error && <p style={{ fontSize:13, color:"#c0392b", marginBottom:12 }}>{error}</p>}
+              <button type="submit" className="rg-btn-primary" style={{ width:"100%", background:T.green500, color:"#fff", border:"none", padding:"15px 24px", borderRadius:100, fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:15, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:9 }}>
+                Send Message <Icon name="arrow" size={16} color="#fff" />
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+const Footer = () => {
+  const cols = [
+    { title:"Platforms", links:["Infrastructure & Logistics","Agriculture & Food Systems","Cold Chain","Institutional & Compliance","Knowledge & Sector"] },
+    { title:"Company",   links:["AI Capabilities","Architecture","Deployment","Numbers","Contact Us"] },
+    { title:"Sectors",   links:["Public Sector","Private Enterprise","Logistics Networks","Agricultural Systems","Supply Chains"] },
+  ];
+  return (
+    <footer style={{ background:T.ink, padding:"64px 6vw 32px" }}>
+      <div style={{ display:"grid", gridTemplateColumns:"2.2fr 1fr 1fr 1fr", gap:"3rem", paddingBottom:"3rem", borderBottom:"1px solid rgba(255,255,255,0.07)" }}>
+        <div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:"1.3rem", color:"#fff", letterSpacing:"-0.022em", marginBottom:14, display:"flex", alignItems:"center", gap:10 }}>
+            <span style={{ width:9, height:9, borderRadius:"50%", background:T.green400, animation:"rgPulse 2s infinite" }} />
+            REGINX AI Technologies
+          </div>
+          <p style={{ fontSize:14, lineHeight:1.75, color:"rgba(255,255,255,0.36)", fontWeight:300, maxWidth:290, marginBottom:24 }}>
+            AI-driven operational intelligence platforms for complex sector ecosystems. Connecting institutions, enterprises, and field-level networks.
+          </p>
+          {[{ icon:"mail", text:"info@reginx.ai" },{ icon:"map", text:"India · REGINX AI Technologies LLP" }].map(c => (
+            <div key={c.text} style={{ display:"flex", alignItems:"center", gap:9, fontSize:13, color:"rgba(255,255,255,0.4)", marginBottom:8 }}>
+              <Icon name={c.icon} size={14} color={T.green400}/>{c.text}
+            </div>
+          ))}
+        </div>
+        {cols.map(col => (
+          <div key={col.title}>
+            <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.55)", letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:18 }}>{col.title}</div>
+            <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:10 }}>
+              {col.links.map(l => (
+                <li key={l}>
+                  <a href="#" style={{ fontSize:13.5, color:"rgba(255,255,255,0.37)", textDecoration:"none", fontWeight:300 }}
+                    onMouseEnter={e => e.target.style.color = T.green300}
+                    onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.37)"}
+                  >{l}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:24, flexWrap:"wrap", gap:12 }}>
+        <span style={{ fontSize:12.5, color:"rgba(255,255,255,0.22)", fontWeight:300 }}>© 2025 REGINX AI Technologies LLP. All rights reserved.</span>
+        <span style={{ display:"inline-flex", alignItems:"center", gap:7, fontSize:12, color:T.green300, background:"rgba(52,194,106,0.1)", border:"1px solid rgba(52,194,106,0.2)", padding:"6px 14px", borderRadius:100 }}>
+          <span style={{ width:6, height:6, borderRadius:"50%", background:T.green400, animation:"rgPulse 2s infinite" }} />
+          AI-Powered Platform
+        </span>
+      </div>
+    </footer>
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   VAPI VOICE ASSISTANT
+   ─────────────────────────────────────────────
+   Install:  npm install @vapi-ai/web
+═══════════════════════════════════════════════ */
+const VAPI_PUBLIC_KEY   = "03907534-98e0-4f56-9bb8-369f3250a50d";
+const VAPI_ASSISTANT_ID = "fe6e5cf5-8385-4801-a1c6-37ec21f3806a";
+
+const CALL_LABELS = {
+  idle:       { title:"Talk to REGINX AI",      sub:"Ask anything about our platforms" },
+  connecting: { title:"Connecting…",            sub:"Establishing secure voice connection" },
+  active:     { title:"Connected · Listening",  sub:"Speak naturally — I'm listening" },
+  ending:     { title:"Ending call…",           sub:"Wrapping up…" },
+};
+
+const VoiceButton = () => {
+  const [status,     setStatus]     = useState("idle");
+  const [open,       setOpen]       = useState(false);
+  const [transcript, setTranscript] = useState([]);
+  const [sdkReady,   setSdkReady]   = useState(false);
+  const vapiRef    = useRef(null);
+  const alive      = useRef(true);
+  const txBottom   = useRef(null);
+
+  /* ── Load Vapi via dynamic import (npm package) ── */
+  useEffect(() => {
+    alive.current = true;
+    let vapi = null;
+
+    (async () => {
+      try {
+        const mod = await import("@vapi-ai/web");
+        const VapiClass = mod.default ?? mod.Vapi ?? mod;
+        if (!alive.current) return;
+
+        vapi = new VapiClass(VAPI_PUBLIC_KEY);
+
+        vapi.on("call-start",  ()    => { if (alive.current) setStatus("active"); });
+        vapi.on("call-end",    ()    => { if (alive.current) { setStatus("idle"); setTranscript([]); } });
+        vapi.on("error",       (err) => { console.error("[Vapi]", err); if (alive.current) setStatus("idle"); });
+        vapi.on("message",     (msg) => {
+          if (msg?.type === "transcript" && msg?.transcriptType === "final" && alive.current) {
+            setTranscript(prev => [...prev.slice(-5), { role: msg.role, text: msg.transcript }]);
+          }
+        });
+
+        vapiRef.current = vapi;
+        if (alive.current) setSdkReady(true);
+      } catch (err) {
+        console.error("[Vapi] SDK load failed. Make sure you ran: npm install @vapi-ai/web", err);
+      }
+    })();
+
+    return () => {
+      alive.current = false;
+      try { vapi?.stop(); } catch (_) {}
+    };
+  }, []);
+
+  /* Auto-scroll transcript */
+  useEffect(() => {
+    txBottom.current?.scrollIntoView({ behavior: "smooth" });
+  }, [transcript]);
+
+  const startCall = useCallback(async () => {
+    if (!vapiRef.current || status !== "idle") return;
+    setStatus("connecting");
+    setTranscript([]);
+    try {
+      await vapiRef.current.start(VAPI_ASSISTANT_ID);
+    } catch (err) {
+      console.error("[Vapi] start:", err);
+      if (alive.current) setStatus("idle");
+    }
+  }, [status]);
+
+  const endCall = useCallback(async () => {
+    if (!vapiRef.current) return;
+    setStatus("ending");
+    try { await vapiRef.current.stop(); }
+    catch { if (alive.current) setStatus("idle"); }
+  }, []);
+
+  /* Derived */
+  const isIdle    = status === "idle";
+  const isActive  = status === "active";
+  const isBusy    = status === "connecting" || status === "ending";
+
+  const orbBg = isActive ? "linear-gradient(135deg,#ef4444,#c62828)"
+              : isBusy   ? "linear-gradient(135deg,#f59e0b,#d97706)"
+              :             "linear-gradient(135deg,#34c26a,#1fa854)";
+
+  const pillProps = isActive
+    ? { color:T.green700, bg:T.green50,  border:T.green100, dot:T.green500, text:"LIVE"       }
+    : isBusy
+    ? { color:"#78350f",  bg:"#fffbeb",  border:"#fde68a",  dot:"#f59e0b",  text:"WAIT"       }
+    : { color:T.ink40,    bg:"#f3f4f6",  border:"#e5e7eb",  dot:"#d1d5db",  text:"READY"      };
+
+  return (
+    <div className="vapi-fab">
+
+      {/* ── Panel ── */}
+      {open && (
+        <div className="vapi-panel">
+
+          {/* Header */}
+          <div style={{ display:"flex", alignItems:"center", gap:11, marginBottom:18 }}>
+            <div style={{ width:40, height:40, borderRadius:11, flexShrink:0, background:T.green50, border:`1px solid ${T.green100}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <Icon name="mic" size={18} color={T.green500}/>
+            </div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:"0.97rem", color:T.ink, lineHeight:1.2 }}>REGINX AI Assistant</div>
+              <div style={{ fontSize:11.5, color:T.ink40, marginTop:2 }}>Voice · GPT-4.1 · VAPI</div>
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:5, fontSize:10.5, fontWeight:700, letterSpacing:"0.07em", textTransform:"uppercase", color:pillProps.color, background:pillProps.bg, border:`1px solid ${pillProps.border}`, padding:"3px 9px", borderRadius:100 }}>
+              <span style={{ width:6, height:6, borderRadius:"50%", background:pillProps.dot, animation:(isActive||isBusy)?"rgPulse 1.4s infinite":"none" }}/>
+              {pillProps.text}
+            </div>
+          </div>
+
+          {/* Status card */}
+          <div style={{ background:T.surface, borderRadius:12, padding:"13px 15px", marginBottom:14, border:`1px solid ${T.border}` }}>
+            <div style={{ fontSize:13.5, fontWeight:600, color:T.ink, marginBottom:3 }}>{CALL_LABELS[status].title}</div>
+            <div style={{ fontSize:11.5, color:T.ink40, lineHeight:1.55 }}>{sdkReady ? CALL_LABELS[status].sub : "Loading voice SDK…"}</div>
+          </div>
+
+          {/* Transcript */}
+          {transcript.length > 0 && (
+            <div style={{ maxHeight:144, overflowY:"auto", marginBottom:14, display:"flex", flexDirection:"column", gap:7 }}>
+              {transcript.map((t, i) => {
+                const me = t.role === "user";
+                return (
+                  <div key={i} style={{ display:"flex", justifyContent:me?"flex-end":"flex-start" }}>
+                    <div style={{ maxWidth:"86%", padding:"8px 12px", borderRadius:12, fontSize:12.5, lineHeight:1.5, background:me?T.green500:"#f0f7f3", color:me?"#fff":T.ink, border:me?"none":`1px solid ${T.border}`, borderBottomRightRadius:me?3:12, borderBottomLeftRadius:me?12:3 }}>
+                      {t.text}
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={txBottom}/>
+            </div>
+          )}
+
+          {/* Waveform */}
+          {isActive && (
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:3, height:28, marginBottom:14 }}>
+              {[0,1,2,3,4,5,6,7,8].map(i => (
+                <div key={i} className="vapi-bar" style={{ background:T.green400, animationDelay:`${i*0.09}s` }}/>
+              ))}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div style={{ display:"flex", gap:9 }}>
+            {isIdle && (
+              <button onClick={startCall} disabled={!sdkReady} style={{
+                flex:1, border:"none", borderRadius:100, padding:"12px 0",
+                background:sdkReady?T.green500:"#d1d5db", color:"#fff",
+                fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:14, fontWeight:600,
+                cursor:sdkReady?"pointer":"not-allowed", opacity:sdkReady?1:0.65,
+                display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                transition:"background 0.2s",
+              }}
+              onMouseEnter={e=>{ if(sdkReady) e.currentTarget.style.background=T.green600; }}
+              onMouseLeave={e=>{ if(sdkReady) e.currentTarget.style.background=T.green500; }}
               >
-                {link}
-                {activeNav === link && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#1e7d50" }} />}
-              </div>
-            ))}
-            <button className="btn-primary" style={{ width: "100%", marginTop: "1rem", padding: "0.9rem" }} onClick={() => scrollTo("Contact")}>
-              Get a Demo
-            </button>
-          </div>
-        )}
-      </nav>
-
-      {/* ── HERO ── */}
-      <section id="home" style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden", paddingTop: "64px", background: "#ffffff" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 55% at 65% 45%, rgba(30,125,80,0.07) 0%, transparent 65%), radial-gradient(ellipse 45% 45% at 15% 75%, rgba(45,160,106,0.05) 0%, transparent 60%)" }} />
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(30,125,80,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,125,80,0.04) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
-
-        {/* Pulse rings — hidden on small screens */}
-        <div style={{ position: "absolute", right: "7%", top: "28%", width: 280, height: 280, display: "block" }}>
-          <style>{`@media(max-width:600px){.pulse-rings{display:none!important}}`}</style>
-          <div className="pulse-rings" style={{ position: "absolute", inset: 0 }}>
-            {[0, 0.6, 1.2].map(d => (
-              <div key={d} style={{ position: "absolute", inset: 0, border: "1px solid rgba(30,125,80,0.18)", borderRadius: "50%", animation: `pulseRing 3s ease-out ${d}s infinite` }} />
-            ))}
-            <div style={{ position: "absolute", inset: "35%", background: "radial-gradient(circle, rgba(30,125,80,0.12), transparent)", borderRadius: "50%" }} />
-          </div>
-        </div>
-
-        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 780, margin: "0 auto", padding: "2rem 1.5rem", textAlign: "center" }}>
-          <div className="hero-badge" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(30,125,80,0.08)", border: "1px solid rgba(30,125,80,0.2)", borderRadius: 50, padding: "0.45rem 1.2rem", marginBottom: "1.75rem", fontSize: "0.75rem", color: "#1e7d50", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#1e7d50", display: "inline-block", boxShadow: "0 0 8px rgba(30,125,80,0.6)" }} />
-            Trusted by Government Organizations
-          </div>
-
-          <h1 className="hero-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2.2rem, 6vw, 4.8rem)", fontWeight: 800, lineHeight: 1.12, marginBottom: "1.25rem", color: "#0f1f17" }}>
-            Powering Governance with{" "}
-            <span className="shimmer-text">Intelligent AI</span>
-          </h1>
-
-          <p className="hero-sub" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 2.5vw, 1.4rem)", color: "#5a8a6e", lineHeight: 1.75, marginBottom: "2rem", fontWeight: 300, fontStyle: "italic", maxWidth: 620, margin: "0 auto 2rem" }}>
-            REGINX AI Technologies LLP delivers cutting-edge Artificial Intelligence solutions tailored exclusively for Government Organizations — enabling smarter decisions, transparent governance and efficient citizen services.
-          </p>
-
-          <div className="hero-btns" style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <div className="hero-btns-inner" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
-              <button className="btn-primary" style={{ fontSize: "1rem", padding: "1rem 2.2rem" }} onClick={() => scrollTo("Contact")}>
-                Request an Enquiry →
+                <Icon name="mic" size={16} color="#fff"/> {sdkReady?"Start Call":"Loading SDK…"}
               </button>
-              <button className="btn-outline" style={{ fontSize: "1rem", padding: "1rem 2.2rem" }} onClick={() => scrollTo("Services")}>
-                Explore Solutions
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ position: "absolute", bottom: "2rem", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem", opacity: 0.4 }}>
-          <div style={{ fontSize: "0.7rem", letterSpacing: "0.15em", color: "#1e7d50", textTransform: "uppercase" }}>Scroll</div>
-          <div style={{ width: 1, height: 40, background: "linear-gradient(#1e7d50, transparent)" }} />
-        </div>
-      </section>
-
-      {/* ── ABOUT ── */}
-      <section id="about" style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
-          <div>
-            <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "1rem", fontWeight: 700 }}>About Us</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, lineHeight: 1.2, marginBottom: "1.5rem", color: "#0f1f17" }}>
-              Bridging Governance<br /><em style={{ color: "#1e7d50", fontStyle: "italic" }}>& Artificial Intelligence</em>
-            </h2>
-            <p style={{ color: "#4a6b57", lineHeight: 1.85, marginBottom: "1.5rem", fontSize: "1rem" }}>
-              Founded by a team of AI researchers, policy experts and technology veterans, REGINX AI Technologies LLP was built with a single mission — to transform how governments operate through the responsible deployment of Artificial Intelligence.
-            </p>
-            <p style={{ color: "#4a6b57", lineHeight: 1.85, marginBottom: "2rem", fontSize: "1rem" }}>
-              We specialize in designing AI systems that respect data sovereignty, comply with Indian government standards, and integrate seamlessly with existing e-governance frameworks like NIC , Gathi Shakti.
-            </p>
-            <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
-              {[["xxxx", "Founded"], ["Kerala", "Headquarters"], ["Pan-India", "Operations"]].map(([v, l]) => (
-                <div key={l}>
-                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 700, color: "#1e7d50" }}>{v}</div>
-                  <div style={{ fontSize: "0.8rem", color: "#7aab92", letterSpacing: "0.08em", marginTop: 2 }}>{l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: "linear-gradient(135deg,rgba(30,125,80,0.05),rgba(30,125,80,0.02))", border: "1px solid rgba(30,125,80,0.12)", borderRadius: 22, padding: "2rem", boxShadow: "0 4px 40px rgba(30,125,80,0.07)" }}>
-            <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.18em", marginBottom: "1.5rem", textTransform: "uppercase", fontWeight: 700 }}>Our Core Values</div>
-            {[
-              ["🔒", "Security First", "All AI systems built with data privacy and national security at the forefront."],
-              ["⚖️", "Ethical AI", "Bias-free, explainable models that uphold democratic accountability."],
-              ["🌱", "Inclusive Growth", "AI solutions accessible across linguistic and geographic barriers."],
-              ["🔧", "Reliable Infrastructure", "99.8% uptime with disaster recovery and sovereign cloud hosting."],
-            ].map(([icon, title, desc]) => (
-              <div key={title} style={{ display: "flex", gap: "1rem", marginBottom: "1.4rem", alignItems: "flex-start" }}>
-                <div style={{ fontSize: "1.3rem", marginTop: 2, flexShrink: 0 }}>{icon}</div>
-                <div>
-                  <div style={{ fontWeight: 600, color: "#1a2e24", marginBottom: "0.25rem", fontSize: "0.95rem" }}>{title}</div>
-                  <div style={{ fontSize: "0.85rem", color: "#5a8a6e", lineHeight: 1.65 }}>{desc}</div>
-                </div>
+            )}
+            {isBusy && (
+              <div style={{ flex:1, background:"#fffbeb", borderRadius:100, padding:"12px 0", display:"flex", alignItems:"center", justifyContent:"center", gap:8, fontSize:13.5, color:"#92400e", fontWeight:600, border:"1px solid #fde68a" }}>
+                <Icon name="spinner" size={16} color="#d97706"/>
+                {status === "ending" ? "Ending…" : "Connecting…"}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SERVICES ── */}
-      <section id="services" style={{ padding: "5rem 1.5rem", background: "#f0f7f3" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-            <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>What We Do</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1rem" }}>Our AI Services</h2>
-            <p style={{ color: "#5a8a6e", maxWidth: 540, margin: "0 auto", lineHeight: 1.75 }}>
-              End-to-end AI capabilities designed specifically for the complexities and compliance requirements of government organizations.
-            </p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
-            {SERVICES.map((s, i) => (
-              <div key={i} className="service-card" style={{ background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18, padding: "2rem", boxShadow: "0 2px 16px rgba(30,125,80,0.06)" }}>
-                <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>{s.icon}</div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", fontWeight: 700, color: "#0f1f17", marginBottom: "0.75rem" }}>{s.title}</h3>
-                <p style={{ fontSize: "0.88rem", color: "#5a8a6e", lineHeight: 1.75 }}>{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SOLUTIONS ── */}
-      <section id="solutions" style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Use Cases</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1rem" }}>Department-Specific Solutions</h2>
-          <p style={{ color: "#5a8a6e", maxWidth: 540, margin: "0 auto", lineHeight: 1.75 }}>
-            Targeted AI applications built for the unique workflows of each government department.
-          </p>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.25rem" }}>
-          {SOLUTIONS.map((s, i) => (
-            <div key={i} style={{
-              background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18, padding: "2rem",
-              boxShadow: "0 2px 16px rgba(30,125,80,0.06)", transition: "transform 0.3s, box-shadow 0.3s, border-color 0.3s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = "0 16px 44px rgba(30,125,80,0.14)"; e.currentTarget.style.borderColor = "rgba(30,125,80,0.3)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(30,125,80,0.06)"; e.currentTarget.style.borderColor = "#dceee4"; }}
-            >
-              <div style={{ fontSize: "2.2rem", marginBottom: "1rem" }}>{s.icon}</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", fontWeight: 700, color: "#1e7d50", marginBottom: "1rem" }}>{s.dept}</div>
-              {s.items.map((item, j) => (
-                <div key={j} style={{ display: "flex", alignItems: "center", gap: "0.65rem", marginBottom: "0.65rem" }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#1e7d50", flexShrink: 0 }} />
-                  <span style={{ fontSize: "0.88rem", color: "#4a6b57" }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── STATISTICS ── */}
-      <section id="statistics" ref={statsRef} style={{ padding: "5rem 1.5rem", background: "#f0f7f3", position: "relative" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(30,125,80,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,125,80,0.04) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-            <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Our Impact</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17" }}>Numbers That Matter</h2>
-          </div>
-          <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.25rem" }}>
-            {STATS.map((s, i) => <StatCard key={i} {...s} animate={statsVisible} />)}
-          </div>
-
-          {/* Testimonial */}
-          <div style={{ marginTop: "4rem", background: "#ffffff", border: "1px solid #dceee4", borderRadius: 22, padding: "2rem", textAlign: "center", maxWidth: 700, margin: "4rem auto 0", boxShadow: "0 4px 30px rgba(30,125,80,0.08)" }}>
-            <div style={{ fontSize: "3rem", color: "rgba(30,125,80,0.2)", fontFamily: "Georgia", lineHeight: 0.5, marginBottom: "1rem" }}>"</div>
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1rem, 2vw, 1.25rem)", color: "#2a4a38", lineHeight: 1.75, fontStyle: "italic", marginBottom: "1.5rem" }}>
-              REGINX AI transformed our district-level grievance resolution process. Response times dropped by 60% and citizen satisfaction scores reached an all-time high.
-            </p>
-            <div style={{ fontSize: "0.85rem", color: "#7aab92" }}>
-              <strong style={{ color: "#1e7d50" }}>CLIENT XYZ</strong> — XYZ TECHNOLOGIES
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TEAM ── */}
-      <section style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Our Leadership</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 700, color: "#0f1f17" }}>Meet the Team</h2>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
-          {TEAM.map((member, i) => (
-            <div key={i} style={{
-              textAlign: "center", padding: "2rem 1.25rem",
-              background: "#ffffff", border: "1px solid #dceee4", borderRadius: 18,
-              boxShadow: "0 2px 16px rgba(30,125,80,0.06)",
-              transition: "transform 0.3s, box-shadow 0.3s, border-color 0.3s",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 16px 44px rgba(30,125,80,0.14)"; e.currentTarget.style.borderColor = "rgba(30,125,80,0.3)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 16px rgba(30,125,80,0.06)"; e.currentTarget.style.borderColor = "#dceee4"; }}
-            >
-              <div style={{
-                width: 76, height: 76, borderRadius: "50%",
-                background: "linear-gradient(135deg,#1e7d50,#2da06a)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                margin: "0 auto 1.25rem",
-                fontSize: "1.3rem", fontWeight: 700, color: "#fff",
-                fontFamily: "'Playfair Display', serif",
-                boxShadow: "0 8px 28px rgba(30,125,80,0.3)",
-              }}>{member.initials}</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 700, color: "#0f1f17", marginBottom: "0.35rem" }}>{member.name}</div>
-              <div style={{ fontSize: "0.82rem", color: "#7aab92", letterSpacing: "0.04em" }}>{member.role}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CONTACT ── */}
-      <section id="contact" style={{ padding: "5rem 1.5rem", background: "#f0f7f3" }}>
-        <div className="contact-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: "4rem", alignItems: "start" }}>
-          <div>
-            <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "0.75rem", fontWeight: 700 }}>Contact Us</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3vw, 2.8rem)", fontWeight: 700, color: "#0f1f17", marginBottom: "1.5rem", lineHeight: 1.2 }}>
-              Start Your AI<br /><em style={{ color: "#1e7d50", fontStyle: "italic" }}>Transformation</em>
-            </h2>
-            <p style={{ color: "#5a8a6e", lineHeight: 1.85, marginBottom: "2rem", fontSize: "0.95rem" }}>
-              Whether you're looking for a proof-of-concept, a full-scale deployment or a consultation, our team is ready to craft the right AI solution for your organization.
-            </p>
-            {[
-              ["📍", "Address", "REGINX AI Technologies LLP"],
-              ["📧", "Email", "info@reginxai.com"],
-              ["📞", "Phone", "+91 xxxxxxxxx"],
-              ["🕐", "Business Hours", "Mon – Sat: 9:00 AM – 6:00 PM IST"],
-            ].map(([icon, label, value]) => (
-              <div key={label} style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", alignItems: "flex-start" }}>
-                <div style={{ fontSize: "1.2rem", marginTop: 2 }}>{icon}</div>
-                <div>
-                  <div style={{ fontSize: "0.73rem", color: "#7aab92", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.25rem", fontWeight: 600 }}>{label}</div>
-                  <div style={{ fontSize: "0.93rem", color: "#1a2e24", whiteSpace: "pre-line" }}>{value}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Form */}
-          <div style={{ background: "#ffffff", border: "1px solid #dceee4", borderRadius: 22, padding: "2rem", boxShadow: "0 4px 40px rgba(30,125,80,0.08)" }}>
-            {submitted ? (
-              <div style={{ textAlign: "center", padding: "3rem 0" }}>
-                <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✅</div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: "#1e7d50", marginBottom: "0.75rem" }}>Enquiry Submitted!</h3>
-                <p style={{ color: "#5a8a6e" }}>Our team will contact you within 1 business day.</p>
-              </div>
-            ) : (
+            )}
+            {isActive && (
               <>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: "#0f1f17", marginBottom: "1.5rem" }}>Send an Enquiry</h3>
-                <div className="form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem", marginBottom: "0.85rem" }}>
-                  {[["name", "Full Name *", "text"], ["email", "Email Address *", "email"]].map(([key, placeholder, type]) => (
-                    <input key={key} type={type} placeholder={placeholder}
-                      value={formData[key]}
-                      onChange={e => setFormData(p => ({ ...p, [key]: e.target.value }))}
-                      style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.8rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", transition: "border-color 0.3s, box-shadow 0.3s" }}
-                    />
-                  ))}
+                <div style={{ flex:1, background:T.green50, borderRadius:100, padding:"12px 0", display:"flex", alignItems:"center", justifyContent:"center", gap:7, fontSize:13, color:T.green600, fontWeight:600, border:`1px solid ${T.green100}` }}>
+                  {[0,1,2,3,4].map(i=><div key={i} className="vapi-bar" style={{ background:T.green500, animationDelay:`${i*0.11}s` }}/>)}
+                  &nbsp;Live
                 </div>
-                <div className="form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem", marginBottom: "0.85rem" }}>
-                  {[["organization", "Organization / Dept", "text"], ["phone", "Phone Number", "tel"]].map(([key, placeholder, type]) => (
-                    <input key={key} type={type} placeholder={placeholder}
-                      value={formData[key]}
-                      onChange={e => setFormData(p => ({ ...p, [key]: e.target.value }))}
-                      style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.8rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", transition: "border-color 0.3s, box-shadow 0.3s" }}
-                    />
-                  ))}
-                </div>
-                <textarea placeholder="Tell us about your requirements *"
-                  value={formData.message}
-                  onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
-                  rows={4}
-                  style={{ background: "#f8fbf9", border: "1px solid #dceee4", borderRadius: 10, padding: "0.8rem 1rem", color: "#1a2e24", fontSize: "0.9rem", width: "100%", resize: "vertical", marginBottom: "1rem", transition: "border-color 0.3s, box-shadow 0.3s" }}
-                />
-                <button className="btn-primary" style={{ width: "100%", padding: "1rem", fontSize: "1rem" }} onClick={handleSubmit}>
-                  Submit Enquiry →
+                <button onClick={endCall} style={{ background:"#fef2f2", color:"#dc2626", border:"1px solid #fecaca", borderRadius:100, padding:"12px 16px", cursor:"pointer", fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:6, transition:"background 0.18s" }}
+                  onMouseEnter={e=>e.currentTarget.style.background="#fecaca"}
+                  onMouseLeave={e=>e.currentTarget.style.background="#fef2f2"}
+                >
+                  <Icon name="phoneOff" size={14} color="#dc2626"/> End
                 </button>
-                <p style={{ fontSize: "0.75rem", color: "#7aab92", textAlign: "center", marginTop: "1rem" }}>
-                  🔒 Your information is secure and never shared with third parties.
-                </p>
               </>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* ── FOOTER ── */}
-      <footer style={{ background: "#0f1f17", borderTop: "1px solid rgba(30,125,80,0.2)", padding: "3rem 1.5rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "2.5rem", marginBottom: "2.5rem" }}>
-            <div>
-              <div style={{ marginBottom: "1rem" }}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 56" width="190" height="50" aria-label="REGINX AI">
-                  <defs>
-                    <linearGradient id="ftHexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#2da06a"/>
-                      <stop offset="100%" stopColor="#3dbf82"/>
-                    </linearGradient>
-                    <filter id="ftGlow" x="-40%" y="-40%" width="180%" height="180%">
-                      <feGaussianBlur stdDeviation="1.2" result="blur"/>
-                      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
-                  </defs>
-                  <g transform="translate(3,3)">
-                    <polygon points="25,2 45,13 45,37 25,48 5,37 5,13" fill="url(#ftHexGrad)" opacity="0.15"/>
-                    <polygon points="25,2 45,13 45,37 25,48 5,37 5,13" fill="none" stroke="url(#ftHexGrad)" strokeWidth="1.5" filter="url(#ftGlow)"/>
-                    <polygon points="25,9 38,17 38,33 25,41 12,33 12,17" fill="none" stroke="#2da06a" strokeWidth="0.7" opacity="0.35"/>
-                    <g stroke="#2da06a" strokeWidth="0.8" opacity="0.55">
-                      <line x1="25" y1="25" x2="25" y2="13"/>
-                      <line x1="25" y1="25" x2="25" y2="37"/>
-                      <line x1="25" y1="25" x2="15" y2="19"/>
-                      <line x1="25" y1="25" x2="35" y2="19"/>
-                      <line x1="25" y1="25" x2="15" y2="31"/>
-                      <line x1="25" y1="25" x2="35" y2="31"/>
-                    </g>
-                    <g fill="#2da06a" opacity="0.75">
-                      <circle cx="25" cy="13" r="1.8"/>
-                      <circle cx="25" cy="37" r="1.8"/>
-                      <circle cx="15" cy="19" r="1.8"/>
-                      <circle cx="35" cy="19" r="1.8"/>
-                      <circle cx="15" cy="31" r="1.8"/>
-                      <circle cx="35" cy="31" r="1.8"/>
-                    </g>
-                    <circle cx="25" cy="25" r="4" fill="#2da06a" filter="url(#ftGlow)"/>
-                  </g>
-                  <line x1="58" y1="10" x2="58" y2="46" stroke="rgba(163,210,185,0.2)" strokeWidth="1"/>
-                  <text x="68" y="34" fontFamily="'Playfair Display', Georgia, serif" fontSize="22" fontWeight="800" letterSpacing="3" fill="#e8f2ee">REGINX</text>
-                  <rect x="70" y="38" width="24" height="11" rx="2.5" fill="#2da06a"/>
-                  <text x="82" y="47" fontFamily="'DM Sans', sans-serif" fontSize="7" fontWeight="700" letterSpacing="1.2" textAnchor="middle" fill="#fff">AI</text>
-                  <text x="100" y="47" fontFamily="'DM Sans', sans-serif" fontSize="6.5" letterSpacing="1.5" fill="#4a6b57">TECHNOLOGIES LLP · INDIA</text>
-                </svg>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "#4a6b57", lineHeight: 1.75, maxWidth: 240 }}>
-                Empowering governments with responsible, scalable, and secure Artificial Intelligence solutions.
-              </p>
-            </div>
-            {[
-              ["Services", ["AI Consulting", "Document AI", "Predictive Analytics", "Smart Chatbots", "Audit AI"]],
-              ["Solutions", ["Warehouse Management Solutions", "Litigation System", "Agriculture"]],
-              ["Company", ["About Us", "Our Team", "Careers", "Press", "Privacy Policy"]],
-            ].map(([title, items]) => (
-              <div key={title}>
-                <div style={{ fontSize: "0.73rem", color: "#1e7d50", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "1rem", fontWeight: 700 }}>{title}</div>
-                {items.map(item => (
-                  <div key={item} style={{ fontSize: "0.85rem", color: "#4a6b57", marginBottom: "0.6rem", cursor: "pointer", transition: "color 0.2s" }}
-                    onMouseEnter={e => e.currentTarget.style.color = "#a3d2b9"}
-                    onMouseLeave={e => e.currentTarget.style.color = "#4a6b57"}
-                  >{item}</div>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ borderTop: "1px solid rgba(30,125,80,0.15)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-            <div style={{ fontSize: "0.78rem", color: "#2d4a39" }}>
-              © 2024 REGINX AI Technologies LLP. All rights reserved. · CIN: AAQ-1234 · MSME Registered
-            </div>
-            <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap" }}>
-              {["LinkedIn", "Twitter", "GitHub", "YouTube"].map(s => (
-                <span key={s} style={{ fontSize: "0.8rem", color: "#2d4a39", cursor: "pointer", transition: "color 0.2s" }}
-                  onMouseEnter={e => e.currentTarget.style.color = "#a3d2b9"}
-                  onMouseLeave={e => e.currentTarget.style.color = "#2d4a39"}
-                >{s}</span>
-              ))}
-            </div>
-          </div>
+          <div style={{ textAlign:"center", marginTop:11, fontSize:10.5, color:T.ink20 }}>🔒 Secure voice · REGINX AI Technologies</div>
         </div>
-      </footer>
+      )}
+
+      {/* ── FAB Orb ── */}
+      <div style={{ position:"relative", display:"flex", alignItems:"center", gap:12 }}>
+
+        {/* Tooltip */}
+        {isIdle && !open && (
+          <div style={{ background:T.ink, color:"#fff", fontSize:13, fontWeight:500, padding:"7px 15px", borderRadius:100, whiteSpace:"nowrap", boxShadow:"0 4px 16px rgba(11,21,16,0.2)", animation:"vapiSlide 0.28s both", pointerEvents:"none" }}>
+            Talk to REGINX AI
+          </div>
+        )}
+
+        {/* Ping rings */}
+        {isIdle && <>
+          <span style={{ position:"absolute", inset:0, borderRadius:"50%", background:"rgba(52,194,106,0.30)", animation:"vapiPing 1.8s ease-out infinite",      pointerEvents:"none" }}/>
+          <span style={{ position:"absolute", inset:0, borderRadius:"50%", background:"rgba(52,194,106,0.16)", animation:"vapiPing 1.8s 0.5s ease-out infinite", pointerEvents:"none" }}/>
+        </>}
+
+        <button
+          onClick={() => {
+            if (isActive) { endCall(); return; }
+            if (isBusy)   return;
+            setOpen(o => !o);
+          }}
+          title={isActive ? "End call" : "Talk to REGINX AI"}
+          aria-label={isActive ? "End call" : "Open voice assistant"}
+          style={{ width:62, height:62, borderRadius:"50%", border:"none", cursor:isBusy?"not-allowed":"pointer", background:orbBg, boxShadow:`0 6px 28px rgba(31,168,84,0.38)`, display:"flex", alignItems:"center", justifyContent:"center", transition:"transform 0.2s, box-shadow 0.2s", position:"relative", zIndex:1 }}
+          onMouseEnter={e=>{ if(!isBusy) e.currentTarget.style.transform="scale(1.1)"; }}
+          onMouseLeave={e=>{ e.currentTarget.style.transform="scale(1)"; }}
+          onMouseDown={e =>{ e.currentTarget.style.transform="scale(0.94)"; }}
+          onMouseUp={e   =>{ e.currentTarget.style.transform="scale(1.1)"; }}
+        >
+          {isBusy   ? <Icon name="spinner"  size={24} color="#fff"/>
+          : isActive ? <Icon name="phoneOff" size={22} color="#fff"/>
+          :             <Icon name="mic"      size={24} color="#fff"/>}
+        </button>
+      </div>
+
     </div>
   );
-}
+};
+
+/* ═══════════════════════════════════════════════
+   ROOT PAGE
+═══════════════════════════════════════════════ */
+const App = () => {
+  useScrollReveal();
+  return (
+    <div style={{ minHeight:"100vh", background:"#ffffff", color:T.ink }}>
+      <GlobalStyles />
+      <Navbar />
+      <Hero />
+      <CoreCapabilities />
+      <Platforms />
+      <Stats />
+      <Deployment />
+      <ContactForm />
+      <Footer />
+      <VoiceButton />
+    </div>
+  );
+};
+
+export default App;
